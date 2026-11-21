@@ -96,7 +96,7 @@ Status: in progress
 
 ## Wave 5
 
-- [ ] T13: Implement rehearsal planner and control API
+- [x] T13: Implement rehearsal planner and control API (commit fc4d069)
   - Satisfies: AC-10, AC-11, AC-12
   - Files: `apps/control-plane/src/repositories/rehearsals.ts`, `apps/control-plane/src/services/rehearsal-planner.ts`, `apps/control-plane/src/services/rehearsal-controller.ts`, `apps/control-plane/src/routes/rehearsals.ts`
   - Do: Accept a page snapshot from the extension, plan only allowed actions with confidence, pause when confidence is below config threshold, handle approve, correct, reject, pause and resume decisions, mark rehearsal paused on extension disconnect, require explicit resume before more actions, and record blocked submission attempts. Never create a submit action.
