@@ -140,7 +140,7 @@ Status: in progress
   - Tests: Chronological ordering, live event insertion, trace detail expansion, empty session state.
   - Done when: Timeline tests pass and live updates appear without a full page reload.
 
-- [ ] T19: Build teaching console panel
+- [x] T19: Build teaching console panel (commit 12c2b83)
   - Satisfies: AC-8, AC-9, AC-17
   - Files: `apps/web/src/panels/TeachingConsole.tsx`
   - Do: Provide typed teaching input, pending voice drafts with editable transcript confirmation and discard, agent status, reasoning trace display, and a clear message when browser or local speech capture is unavailable.
