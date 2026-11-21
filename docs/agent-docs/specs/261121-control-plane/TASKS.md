@@ -80,7 +80,7 @@ Status: in progress
   - Tests: Mock `@opencode/sdk` with `vi.mock`; assert host database path, session creation, event filtering, reasoning normalization, final JSON validation, cancellation and host close.
   - Done when: OpenCode adapter tests pass with the SDK mocked; live provider verification is reserved for Phase 5.
 
-- [ ] T11: Implement profile inference, rules and revision API
+- [x] T11: Implement profile inference, rules and revision API (commit 1b25718)
   - Satisfies: AC-4, AC-5, AC-6, AC-7
   - Files: `apps/control-plane/src/repositories/profile.ts`, `apps/control-plane/src/repositories/rules.ts`, `apps/control-plane/src/repositories/revisions.ts`, `apps/control-plane/src/services/profile-inference.ts`, `apps/control-plane/src/routes/profile.ts`, `apps/control-plane/src/routes/rules.ts`, `apps/control-plane/src/routes/revisions.ts`
   - Do: Infer four-section profile entries from stored events with the agent adapter. Link entries to source event IDs and traces. Leave unsupported sections empty. Expose endpoints to inspect and correct entries, create and edit rules, and query revision history with source session and trace details. Write all changes atomically in one transaction.
