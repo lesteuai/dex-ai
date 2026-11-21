@@ -18,7 +18,7 @@ Status: in progress
   - Tests: Envelope round trip, malformed event batch rejection with field errors, WebSocket union narrowing, rehearsal schema rejecting `submit` and `requestSubmit`.
   - Done when: Shared package typechecks and its unit tests pass without importing any app code.
 
-- [ ] T3: Create first-run config and local auth guards
+- [x] T3: Create first-run config and local auth guards (commit 7e3ee0b)
   - Satisfies: AC-1, AC-2, AC-8, AC-11
   - Files: `apps/control-plane/package.json`, `apps/control-plane/src/config.ts`, `apps/control-plane/src/auth.ts`
   - Do: Generate `~/.config/dex-ai/config.json` on first run with random token, `127.0.0.1` host, port, data directory, allowed Chrome and Firefox extension origins, local UI origin, low-confidence threshold and Parakeet model path. Write with mode `0600` and support `DEX_AI_HOME` overrides. Implement middleware helpers for loopback remote address, Host allowlist, bearer token, extension Origin allowlist, and WebSocket token subprotocol validation.
