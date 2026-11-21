@@ -110,7 +110,7 @@ Status: in progress
   - Tests: Token gate validation, API client sends bearer token and handles errors, stream client sets subprotocol and reconnects in paused state, privacy notice contains required disclosures.
   - Done when: Web shell unit tests pass and `vite build` emits assets for control-plane static serving.
 
-- [ ] T15: Build Chrome and Firefox extension manifests and background coordinator
+- [x] T15: Build Chrome and Firefox extension manifests and background coordinator (commit 66fc6b9)
   - Satisfies: AC-2, AC-3, AC-7, AC-10
   - Files: `apps/extension/package.json`, `apps/extension/vite.config.ts`, `apps/extension/manifest.config.ts`, `apps/extension/src/background/index.ts`, `apps/extension/src/shared/api-client.ts`, `apps/extension/src/shared/auth.ts`, `apps/extension/src/shared/messages.ts`
   - Do: Use one manifest definition and CRXJS `browser` mode to produce Chrome service-worker and Firefox background-script builds with pinned extension origins. In the coordinator, store the token, buffer event batches, post authenticated batches, open the stream, route rehearsal decisions to the active tab, and mark the control plane session paused on disconnect.
