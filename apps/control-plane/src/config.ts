@@ -10,6 +10,11 @@ const DEFAULT_LOW_CONFIDENCE_THRESHOLD = 0.7;
 const PARAKEET_MODEL_DIR_NAME = "parakeet-tdt-0.6b-v3-int8";
 const MIN_TOKEN_LENGTH = 32;
 
+/** "deterministic" exists for automated runs; production runs use OpenCode. */
+export const agentKindSchema = z.enum(["opencode", "deterministic"]);
+
+export type AgentKind = z.infer<typeof agentKindSchema>;
+
 export const configSchema = z.object({
   host: z.string().min(1),
   port: z.number().int().min(1).max(65535),
@@ -19,6 +24,8 @@ export const configSchema = z.object({
   localUiOrigin: z.string().min(1),
   lowConfidenceThreshold: z.number().min(0).max(1),
   parakeetModelPath: z.string().min(1),
+  // Optional so config files written before this field existed still load.
+  agentKind: agentKindSchema.optional(),
 });
 
 export type ControlPlaneConfig = z.infer<typeof configSchema>;
@@ -51,6 +58,7 @@ function buildDefaultConfig(): ControlPlaneConfig {
     localUiOrigin: `http://${DEFAULT_HOST}:${DEFAULT_PORT}`,
     lowConfidenceThreshold: DEFAULT_LOW_CONFIDENCE_THRESHOLD,
     parakeetModelPath: join(dataDir, "models", PARAKEET_MODEL_DIR_NAME),
+    agentKind: "opencode",
   };
 }
 

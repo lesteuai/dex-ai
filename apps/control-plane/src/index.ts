@@ -4,17 +4,13 @@ import { serve, type ServerType } from "@hono/node-server";
 import type { DatabaseSync } from "node:sqlite";
 import { WebSocketServer } from "ws";
 import { createControlPlaneApp } from "./app";
+import { createAgentAdapter, type AgentAdapterHost } from "./agent/factory";
 import { getConfigFilePath, loadOrCreateConfig, type ControlPlaneConfig } from "./config";
 import { createDb, openSqliteDatabase, type ControlPlaneDb } from "./db/client";
 import { runMigrations } from "./db/migrate";
 import { StreamHub } from "./stream/hub";
 
 const DATABASE_FILE_NAME = "control-plane.sqlite";
-
-/** External in-process host (the agent adapter) joined to shutdown. */
-export interface AgentHost {
-  close(): Promise<void>;
-}
 
 export interface ControlPlaneHandle {
   server: ServerType;
@@ -24,15 +20,17 @@ export interface ControlPlaneHandle {
   close(): Promise<void>;
 }
 
-export async function startControlPlane(
-  config: ControlPlaneConfig,
-  agentHost?: AgentHost,
-): Promise<ControlPlaneHandle> {
+export async function startControlPlane(config: ControlPlaneConfig): Promise<ControlPlaneHandle> {
   const hub = new StreamHub();
   const database = openSqliteDatabase(join(config.dataDir, DATABASE_FILE_NAME));
   const db = createDb(database);
   await runMigrations(database);
-  const app = createControlPlaneApp(config, hub, db, database);
+  const agentHost = createAgentAdapter(
+    config.agentKind === "deterministic"
+      ? { kind: "deterministic" }
+      : { kind: "opencode", dataDir: config.dataDir },
+  );
+  const app = createControlPlaneApp(config, hub, db, database, agentHost);
   // noServer mode: @hono/node-server drives upgrades through serve().
   const wss = new WebSocketServer({ noServer: true });
   const server = serve(
@@ -55,6 +53,7 @@ export async function startControlPlane(
     await listening;
   } catch (error) {
     database.close();
+    await agentHost.close();
     throw error;
   }
   return {
@@ -70,7 +69,7 @@ async function closeControlPlane(
   server: ServerType,
   hub: StreamHub,
   database: DatabaseSync,
-  agentHost?: AgentHost,
+  agentHost: AgentAdapterHost,
 ): Promise<void> {
   // Close stream clients first so server.close does not wait on live sockets.
   hub.close();
@@ -79,7 +78,7 @@ async function closeControlPlane(
   });
   // Closing twice is legal for server and hub; keep the database idempotent too.
   if (database.isOpen) database.close();
-  await agentHost?.close();
+  await agentHost.close();
 }
 
 function runMain(): void {

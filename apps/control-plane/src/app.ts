@@ -2,6 +2,7 @@ import type { DatabaseSync } from "node:sqlite";
 import { upgradeWebSocket, type HttpBindings } from "@hono/node-server";
 import { type Context, type MiddlewareHandler, Hono } from "hono";
 import { cors } from "hono/cors";
+import type { AgentAdapter } from "./agent/adapter";
 import {
   isAllowedHost,
   isAllowedOrigin,
@@ -11,9 +12,16 @@ import {
 } from "./auth";
 import { getAllowedHosts, getAllowedOrigins, type ControlPlaneConfig } from "./config";
 import type { ControlPlaneDb } from "./db/client";
+import { createEvaluationsRoute } from "./routes/evaluations";
 import { createEventsRoute } from "./routes/events";
 import { createHealthRoute } from "./routes/health";
+import { createProfileRoute } from "./routes/profile";
+import { createRehearsalsRoute } from "./routes/rehearsals";
+import { createRevisionsRoute } from "./routes/revisions";
+import { createRulesRoute } from "./routes/rules";
 import { createSessionsRoute } from "./routes/sessions";
+import { createSttRoute } from "./routes/stt";
+import { createTeachingRoute } from "./routes/teaching";
 import { createFixtureRoute, createWebRoute } from "./routes/static";
 import type { StreamHub } from "./stream/hub";
 
@@ -66,6 +74,7 @@ export function createControlPlaneApp(
   hub: StreamHub,
   db: ControlPlaneDb,
   database: DatabaseSync,
+  adapter: AgentAdapter,
 ): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
 
@@ -83,6 +92,22 @@ export function createControlPlaneApp(
   api.route("/health", createHealthRoute(config));
   api.route("/events", createEventsRoute({ database, db, hub }));
   api.route("/sessions", createSessionsRoute({ db }));
+  api.route("/profile", createProfileRoute({ database, db, adapter, hub }));
+  api.route("/rules", createRulesRoute({ database, db, hub }));
+  api.route("/revisions", createRevisionsRoute({ db }));
+  api.route("/teaching", createTeachingRoute({ database, db, hub, adapter }));
+  api.route("/stt", createSttRoute(config));
+  api.route(
+    "/rehearsals",
+    createRehearsalsRoute({
+      database,
+      db,
+      hub,
+      adapter,
+      confidenceThreshold: config.lowConfidenceThreshold,
+    }),
+  );
+  api.route("/evaluations", createEvaluationsRoute({ database, db, adapter }));
   app.route("/api", api);
 
   app.use("/stream", requireStreamAccess(config));

@@ -51,6 +51,8 @@ export function buildTestConfig(): ControlPlaneConfig {
     localUiOrigin: "http://127.0.0.1:8787",
     lowConfidenceThreshold: 0.7,
     parakeetModelPath: join(dataDir, "models"),
+    // Automated runs must not host OpenCode or touch the network.
+    agentKind: "deterministic",
   };
 }
 

@@ -115,6 +115,31 @@ describe("invalid config rejection", () => {
   });
 });
 
+describe("agent kind parsing", () => {
+  it("defaults to the OpenCode agent kind on first run", () => {
+    expect(loadOrCreateConfig().agentKind).toBe("opencode");
+  });
+
+  it("accepts the deterministic agent kind from the config file", () => {
+    writeConfigFile({ agentKind: "deterministic" });
+
+    expect(loadOrCreateConfig().agentKind).toBe("deterministic");
+  });
+
+  it("still loads a config file written before agentKind existed", () => {
+    // JSON.stringify drops the undefined value, matching an older config file.
+    writeConfigFile({ agentKind: undefined });
+
+    expect(loadOrCreateConfig().agentKind).toBeUndefined();
+  });
+
+  it.each(["claude", "codex", "auto", 1])("rejects an unsupported agentKind %s", (agentKind) => {
+    writeConfigFile({ agentKind });
+
+    expect(() => loadOrCreateConfig()).toThrow(/Invalid config file/);
+  });
+});
+
 describe("threshold parsing", () => {
   it.each([0, 0.35, 1])("accepts threshold %s", (lowConfidenceThreshold) => {
     writeConfigFile({ lowConfidenceThreshold });
