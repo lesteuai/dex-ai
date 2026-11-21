@@ -147,7 +147,7 @@ Status: in progress
   - Tests: Typed submit payload, voice draft confirm and discard, transcript editing before confirmation, fallback message, failure state preserving draft.
   - Done when: Teaching panel tests pass and voice drafts become teaching events only after confirmation.
 
-- [ ] T20: Build rehearsal observer panel
+- [x] T20: Build rehearsal observer panel (commit e933419)
   - Satisfies: AC-10, AC-11, AC-12, AC-17
   - Files: `apps/web/src/panels/RehearsalObserver.tsx`
   - Do: Start a rehearsal for the current posting, display proposed actions with confidence and reasoning, provide approve, correct, reject, pause and resume controls, show blocked submission attempts, and require explicit resume after disconnect.
