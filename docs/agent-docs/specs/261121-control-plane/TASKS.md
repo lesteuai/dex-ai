@@ -103,7 +103,7 @@ Status: in progress
   - Tests: Confident action continues, low-confidence action pauses, correction changes proposed action, disconnect prevents further execution, blocked submit attempt recorded, submit action cannot be created through routes or schemas.
   - Done when: Rehearsal tests pass and the planner output contains no submit action type.
 
-- [ ] T14: Build web shell, API client and stream client
+- [x] T14: Build web shell, API client and stream client (commit ca13f70)
   - Satisfies: AC-1, AC-2, AC-16, AC-17
   - Files: `apps/web/package.json`, `apps/web/vite.config.ts`, `apps/web/index.html`, `apps/web/src/main.tsx`, `apps/web/src/App.tsx`, `apps/web/src/styles.css`, `apps/web/src/api/client.ts`, `apps/web/src/stream/useDexStream.ts`, `apps/web/src/components/TokenGate.tsx`, `apps/web/src/components/PrivacyNotice.tsx`
   - Do: Build a React 19 app with TanStack Query, token entry, REST client with bearer token, native WebSocket client using the token subprotocol, tab layout for the four panels, CSS variables, and privacy notice stating that prompts go to the selected provider while SQLite data and voice audio stay local. Rebuild query cache on relevant stream events.
