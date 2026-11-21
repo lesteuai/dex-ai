@@ -1,3 +1,4 @@
+import type { DatabaseSync } from "node:sqlite";
 import { upgradeWebSocket, type HttpBindings } from "@hono/node-server";
 import { type Context, type MiddlewareHandler, Hono } from "hono";
 import { cors } from "hono/cors";
@@ -9,7 +10,10 @@ import {
   matchWebSocketTokenProtocol,
 } from "./auth";
 import { getAllowedHosts, getAllowedOrigins, type ControlPlaneConfig } from "./config";
+import type { ControlPlaneDb } from "./db/client";
+import { createEventsRoute } from "./routes/events";
 import { createHealthRoute } from "./routes/health";
+import { createSessionsRoute } from "./routes/sessions";
 import { createFixtureRoute, createWebRoute } from "./routes/static";
 import type { StreamHub } from "./stream/hub";
 
@@ -57,7 +61,12 @@ function requireStreamAccess(config: ControlPlaneConfig): MiddlewareHandler<AppE
 }
 
 /** Build the Hono app for the HTTP API, WebSocket stream and static assets. */
-export function createControlPlaneApp(config: ControlPlaneConfig, hub: StreamHub): Hono<AppEnv> {
+export function createControlPlaneApp(
+  config: ControlPlaneConfig,
+  hub: StreamHub,
+  db: ControlPlaneDb,
+  database: DatabaseSync,
+): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
 
   const api = new Hono<AppEnv>();
@@ -72,6 +81,8 @@ export function createControlPlaneApp(config: ControlPlaneConfig, hub: StreamHub
   );
   api.use("*", requireApiAccess(config));
   api.route("/health", createHealthRoute(config));
+  api.route("/events", createEventsRoute({ database, db, hub }));
+  api.route("/sessions", createSessionsRoute({ db }));
   app.route("/api", api);
 
   app.use("/stream", requireStreamAccess(config));
