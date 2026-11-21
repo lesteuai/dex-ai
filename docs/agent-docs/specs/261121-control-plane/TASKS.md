@@ -25,7 +25,7 @@ Status: in progress
   - Tests: Config creation and reload from a temporary home, file mode, token validation, disallowed origin rejection, missing token rejection, duplicate config generation preserving token, threshold parsing.
   - Done when: Config and auth unit tests pass with a temporary data directory and no network listener.
 
-- [ ] T4: Build deterministic local job-site fixture
+- [x] T4: Build deterministic local job-site fixture (commit ca5100b)
   - Satisfies: AC-10, AC-12, AC-14, AC-15
   - Files: `apps/control-plane/fixtures/job-site/index.html`, `apps/control-plane/fixtures/job-site/search.html`, `apps/control-plane/fixtures/job-site/posting.html`, `apps/control-plane/fixtures/job-site/apply.html`, `apps/control-plane/fixtures/job-site/styles.css`, `apps/control-plane/fixtures/job-site/submissions.json`, `apps/control-plane/fixtures/job-site/fixture.test.ts`
   - Do: Create search filters, posting list, posting detail and application form with stable `data-testid` attributes for expected fields. Provide a submit control and a local submission recorder file that the test route can update. Keep the fixture self-contained and deterministic.
