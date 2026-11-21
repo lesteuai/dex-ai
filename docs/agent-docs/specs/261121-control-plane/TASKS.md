@@ -57,7 +57,7 @@ Status: in progress
   - Tests: Valid batch storage, duplicate event IDs ignored, malformed envelope rejected without partial writes, chronological ordering from out-of-order timestamps, persistence after reopening the database, timeline includes trace and revision entries.
   - Done when: Ingest and timeline tests pass and events from either browser kind are stored without browser-specific branching.
 
-- [ ] T8: Implement local Parakeet speech transcription
+- [x] T8: Implement local Parakeet speech transcription (commit d06f59f)
   - Satisfies: AC-8, AC-16
   - Files: `apps/control-plane/src/stt/wav.ts`, `apps/control-plane/src/stt/transcriber.ts`, `apps/control-plane/src/stt/parakeet-transcriber.ts`, `apps/control-plane/src/stt/worker.ts`, `apps/control-plane/src/routes/stt.ts`
   - Do: Validate 16 kHz mono 16-bit WAV requests with a size limit. Run `sherpa-onnx-node` `OfflineRecognizer` in a worker thread using the configured Parakeet TDT v3 int8 encoder, decoder, joiner and tokens, with `modelType: nemo_transducer` and CPU provider. Load lazily, return a typed unavailable error when model files are missing, return only `{ text }`, and persist no audio.
