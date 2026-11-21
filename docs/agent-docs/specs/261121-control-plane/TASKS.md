@@ -64,7 +64,7 @@ Status: in progress
   - Tests: Valid WAV accepted, invalid header and sample rate rejected, oversized body rejected, unavailable model returns typed error, route returns transcript from a fake transcriber, no database write occurs.
   - Done when: STT unit tests pass; a real sample transcription runs if the configured model is present and is reported as skipped with reason otherwise.
 
-- [ ] T9: Define agent adapter and deterministic implementation
+- [x] T9: Define agent adapter and deterministic implementation (commit dd0fbbc)
   - Satisfies: AC-4, AC-5, AC-6, AC-9, AC-13
   - Files: `apps/control-plane/src/agent/adapter.ts`, `apps/control-plane/src/agent/deterministic-adapter.ts`, `apps/control-plane/src/agent/results.ts`, `apps/control-plane/src/agent/prompts.ts`
   - Do: Implement the adapter interface, four prompt builders, Zod result schemas for profile, rules, rehearsal plan and correction, and a deterministic adapter driven by local fixtures. Normalize status, reasoning, result and error events. Honor `AbortSignal` cancellation.
