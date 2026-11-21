@@ -87,7 +87,7 @@ Status: in progress
   - Tests: Deterministic inference populates all four sections, insufficient evidence leaves sections empty, correction persists and creates a revision, revision query returns actor and source session, concurrent writes roll back cleanly.
   - Done when: Profile, rules and revision tests pass and web clients can fetch all required data through these routes.
 
-- [ ] T12: Implement teaching drafts and teaching API
+- [x] T12: Implement teaching drafts and teaching API (commit 77e6395)
   - Satisfies: AC-8, AC-9
   - Files: `apps/control-plane/src/repositories/teaching.ts`, `apps/control-plane/src/services/teaching.ts`, `apps/control-plane/src/routes/teaching.ts`
   - Do: Create voice transcript drafts from the extension, list pending drafts, confirm or edit a transcript into a `reason_stated` event and teaching task, discard drafts, and accept typed teaching directly. Preserve drafts when the agent task fails and publish trace updates through the stream hub.
