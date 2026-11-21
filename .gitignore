@@ -158,3 +158,10 @@ vite.config.ts.timestamp-*
 .nx/cache
 .nx/workspace-data
 .nx/migrate-runs
+
+# Dex AI local runtime data (SQLite database, agent sessions, transcripts)
+data/
+
+# Playwright test output
+test-results/
+playwright-report/
