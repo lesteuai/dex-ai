@@ -41,7 +41,7 @@ Status: in progress
   - Tests: Fresh migration, repeat migration, insert and read session and event, unique dedupe constraint, transaction rollback, file recreation after close.
   - Done when: Database tests pass against a temporary SQLite file and generated migration is committed.
 
-- [ ] T6: Build Hono app shell, static serving and stream hub
+- [x] T6: Build Hono app shell, static serving and stream hub (commit a8a396c)
   - Satisfies: AC-1, AC-2, AC-6, AC-7, AC-9, AC-10
   - Files: `apps/control-plane/src/app.ts`, `apps/control-plane/src/index.ts`, `apps/control-plane/src/stream/hub.ts`, `apps/control-plane/src/routes/health.ts`, `apps/control-plane/src/routes/static.ts`
   - Do: Wire Hono with config and auth guards, mount `/api/health`, serve the built web directory and local fixture, create `WebSocketServer({ noServer: true })` and pass it to `serve()` with the `websocket` option, bind explicitly to `127.0.0.1`, publish envelope events through the hub, and close server, stream and agent host on SIGINT and SIGTERM. Apply CORS only to HTTP API routes so WebSocket upgrades keep mutable headers.
