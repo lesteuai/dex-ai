@@ -102,7 +102,7 @@ The Parakeet implementation uses `sherpa-onnx-node` `OfflineRecognizer` with the
 
 ## Libraries
 
-- Node.js 26.10.0 and `node:sqlite`: control-plane runtime and synchronous SQLite file access. Migrations use Drizzle's node-sqlite migrator and prepared `BEGIN`, `COMMIT` and `ROLLBACK` statements for multi-table writes.
+- Node.js 26.10.0 and `node:sqlite`: control-plane runtime and synchronous SQLite file access. Drizzle 0.45.4 has no `node-sqlite` driver, so the control plane connects through Drizzle's `sqlite-proxy` driver over raw `node:sqlite` `DatabaseSync`. Migrations use Drizzle's `sqlite-proxy` migrator and prepared `BEGIN`, `COMMIT` and `ROLLBACK` statements for multi-table writes.
 - Bun 1.4.2: workspace dependency manager and task runner. The control plane executes under Node to keep `node:sqlite` and OpenCode SDK behavior explicit.
 - TypeScript 7.0.2: project references and `tsc --noEmit` gate.
 - Hono 4.13.19 with `@hono/node-server` 2.1.11: HTTP routes, middleware and `serve()` with `websocket: { server }`.
@@ -120,7 +120,7 @@ The Parakeet implementation uses `sherpa-onnx-node` `OfflineRecognizer` with the
 - Playwright 1.65.1: Chromium and Firefox E2E against the local fixture, extension loading and public posting smoke harness.
 - ESLint 10.15.0 and `tsx` 4.23.15: lint gate and TypeScript execution for local control-plane startup.
 
-Documentation used for API details: [Hono Node.js and WebSocket](https://hono.dev/docs/getting-started/nodejs), [Drizzle node:sqlite](https://orm.drizzle.team/docs/get-started/node-sqlite-new), [Node sqlite](https://nodejs.org/api/sqlite.html), [Zod error formatting](https://zod.dev/error-formatting), [OpenCode SDK v2](https://opencode.ai/v2/docs/build/sdk), [CRXJS browser support](https://crxjs-chrome-extension-tools-38.mintlify.app/config/browser-support), [WebExtension Polyfill](https://github.com/mozilla/webextension-polyfill), [sherpa-onnx Node addon example](https://github.com/k2-fsa/sherpa-onnx/blob/master/nodejs-addon-examples/test_asr_non_streaming_nemo_parakeet_tdt_v2.js), [Parakeet TDT model package](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/nemo/parakeet-tdt-0.6b-v3.html), [TanStack Query](https://tanstack.com/query/latest), [Playwright test configuration](https://playwright.dev/docs/test-configuration).
+Documentation used for API details: [Hono Node.js and WebSocket](https://hono.dev/docs/getting-started/nodejs), [Drizzle sqlite-proxy](https://orm.drizzle.team/docs/sqlite/connect-drizzle-proxy), [Node sqlite](https://nodejs.org/api/sqlite.html), [Zod error formatting](https://zod.dev/error-formatting), [OpenCode SDK v2](https://opencode.ai/v2/docs/build/sdk), [CRXJS browser support](https://crxjs-chrome-extension-tools-38.mintlify.app/config/browser-support), [WebExtension Polyfill](https://github.com/mozilla/webextension-polyfill), [sherpa-onnx Node addon example](https://github.com/k2-fsa/sherpa-onnx/blob/master/nodejs-addon-examples/test_asr_non_streaming_nemo_parakeet_tdt_v2.js), [Parakeet TDT model package](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/nemo/parakeet-tdt-0.6b-v3.html), [TanStack Query](https://tanstack.com/query/latest), [Playwright test configuration](https://playwright.dev/docs/test-configuration).
 
 ## Risks
 
