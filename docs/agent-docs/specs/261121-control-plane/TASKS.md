@@ -50,7 +50,7 @@ Status: in progress
 
 ## Wave 3
 
-- [ ] T7: Implement event ingest and session timeline API
+- [x] T7: Implement event ingest and session timeline API (commit 280da7a)
   - Satisfies: AC-3, AC-7, AC-16
   - Files: `apps/control-plane/src/repositories/events.ts`, `apps/control-plane/src/repositories/sessions.ts`, `apps/control-plane/src/repositories/traces.ts`, `apps/control-plane/src/repositories/revisions.ts`, `apps/control-plane/src/services/session-timeline.ts`, `apps/control-plane/src/routes/events.ts`, `apps/control-plane/src/routes/sessions.ts`
   - Do: Accept validated event batches, deduplicate by `dedupe_key`, upsert sessions, return field-specific validation errors, and assemble a chronological timeline from events, traces, revisions and rehearsal actions. Publish `session.updated` when a batch lands.
