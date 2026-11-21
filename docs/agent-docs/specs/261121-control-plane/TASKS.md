@@ -133,7 +133,7 @@ Status: in progress
   - Tests: Render fixture profile, edit mutation payload, empty section display, trace expansion, revision source session link.
   - Done when: Panel tests pass and the panel works against the profile and rules routes.
 
-- [ ] T18: Build session timeline panel
+- [x] T18: Build session timeline panel (commit 87c8947)
   - Satisfies: AC-7, AC-17
   - Files: `apps/web/src/panels/SessionTimeline.tsx`
   - Do: List sessions, show selected session events, traces, corrections and rehearsal actions in chronological order, and refresh from WebSocket `session.updated` and `trace.completed` events.
