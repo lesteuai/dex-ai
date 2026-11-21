@@ -179,7 +179,7 @@ Status: in progress
   - Tests: none, this task creates the E2E harness.
   - Done when: `bun run e2e:web` passes in both browser projects.
 
-- [ ] T24: Build extension Playwright suites and smoke harness
+- [x] T24: Build extension Playwright suites and smoke harness (commit 1098a9b)
   - Satisfies: AC-3, AC-8, AC-10, AC-12, AC-14, AC-15
   - Files: `tests/e2e/extension/chrome.spec.ts`, `tests/e2e/extension/firefox.spec.ts`, `tests/e2e/extension/public-posting.smoke.ts`, `tests/e2e/README.md`
   - Do: Load the Chrome and Firefox development builds, capture local fixture events, run a supervised rehearsal with a low-confidence pause, confirm a voice transcript through the local model when available, assert no submission recorder entry, run the evaluation endpoint before and after a correction, and document the public posting smoke that stops before final submission.
