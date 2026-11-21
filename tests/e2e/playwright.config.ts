@@ -50,6 +50,7 @@ function buildControlPlaneConfig(home: string, port: number): Record<string, unk
 /**
  * Wipe both homes and rebuild the web app once per run. Worker processes
  * inherit the guard variable, so only the main Playwright process prepares.
+ * Extension-suite runs manage their own control plane and skip this.
  */
 function prepareE2eHomes(): void {
   for (const browserName of Object.keys(e2eHomes) as E2eBrowserName[]) {
@@ -65,8 +66,11 @@ function prepareE2eHomes(): void {
   execFileSync("bun", ["run", "--filter=./apps/web", "build"], { cwd: REPO_ROOT, stdio: "inherit" });
 }
 
+/** Set by the e2e:extension script; extension suites build their own control plane on 8787. */
+const EXTENSION_ONLY = process.env.DEX_AI_E2E_EXTENSION === "1";
+
 const PREPARED_ENV = "DEX_AI_E2E_WEB_PREPARED";
-if (process.env[PREPARED_ENV] === undefined) {
+if (process.env[PREPARED_ENV] === undefined && !EXTENSION_ONLY) {
   prepareE2eHomes();
   process.env[PREPARED_ENV] = "1";
 }
@@ -84,7 +88,9 @@ function webServerFor(browserName: E2eBrowserName) {
 }
 
 export default defineConfig({
-  testDir: "./web",
+  // Covers both the web suites in web/ and the extension suites in
+  // extension/. The web servers below only serve the web suites.
+  testDir: ".",
   workers: 1,
   fullyParallel: false,
   reporter: "list",
@@ -100,5 +106,5 @@ export default defineConfig({
       use: { ...devices["Desktop Firefox"], baseURL: e2eOrigins.firefox },
     },
   ],
-  webServer: [webServerFor("chromium"), webServerFor("firefox")],
+  ...(EXTENSION_ONLY ? {} : { webServer: [webServerFor("chromium"), webServerFor("firefox")] }),
 });

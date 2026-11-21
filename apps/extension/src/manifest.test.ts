@@ -53,6 +53,9 @@ describe("chrome build", () => {
     // control plane extensionOrigins allowlist keeps matching.
     expect(output.key).toMatch(/^MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A/);
     expect(output.browser_specific_settings).toBeUndefined();
+    // Chrome's default extension CSP carries no upgrade directive, so the
+    // manifest stays implicit there.
+    expect(output.content_security_policy).toBeUndefined();
   });
 });
 
@@ -66,6 +69,17 @@ describe("firefox build", () => {
     });
     expect(FIREFOX_ADDON_ID).toMatch(/^\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}$/);
     expect(output.key).toBeUndefined();
+  });
+
+  it("declares extension pages CSP without upgrade-insecure-requests", () => {
+    const policy = buildManifest("firefox").content_security_policy as { extension_pages: string };
+    // Firefox's default MV3 CSP would upgrade the loopback ws:// stream to
+    // wss:// and break the control plane connection, so the policy must
+    // exclude the directive while keeping scripts restricted to 'self'.
+    expect(policy.extension_pages).toContain("script-src 'self'");
+    expect(policy.extension_pages).not.toContain("upgrade-insecure-requests");
+    expect(policy.extension_pages).not.toContain("unsafe-eval");
+    expect(policy.extension_pages).not.toContain("unsafe-inline");
   });
 });
 

@@ -65,6 +65,13 @@ export default defineManifest(({ mode }) => {
         // world "MAIN" in content scripts needs Firefox 128 or newer.
         gecko: { id: FIREFOX_ADDON_ID, strict_min_version: "128.0" },
       },
+      content_security_policy: {
+        // Firefox's default MV3 CSP adds upgrade-insecure-requests, which
+        // would upgrade the loopback ws:// control plane stream to wss://
+        // and break the local-only connection. The explicit policy keeps
+        // scripts restricted to 'self' without the upgrade directive.
+        extension_pages: "script-src 'self'; object-src 'self'",
+      },
     };
   }
 

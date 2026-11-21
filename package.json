@@ -17,7 +17,7 @@
     "test": "vitest run",
     "e2e": "playwright test -c tests/e2e",
     "e2e:web": "playwright test -c tests/e2e --project=chromium --project=firefox",
-    "e2e:extension": "playwright test -c tests/e2e extension"
+    "e2e:extension": "DEX_AI_E2E_EXTENSION=1 playwright test -c tests/e2e extension"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
