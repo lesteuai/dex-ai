@@ -126,7 +126,7 @@ Status: in progress
 
 ## Wave 6
 
-- [ ] T17: Build profile and rules editor panel
+- [x] T17: Build profile and rules editor panel (commit 5115257)
   - Satisfies: AC-4, AC-5, AC-6, AC-17
   - Files: `apps/web/src/panels/ProfileEditor.tsx`, `apps/web/src/components/RevisionList.tsx`
   - Do: Render four profile sections with source links and empty states, inline edit entries and rules, show trace details for inferred values, and show revision history with source session and actor.
