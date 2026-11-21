@@ -76,6 +76,8 @@ export function buildTeachingPrompt(input: TeachingPromptInput): string {
 export interface RehearsalPlanPromptInput {
   postingUrl: string;
   postingTitle?: string;
+  /** Page snapshot captured by the extension, when one has arrived. */
+  snapshot?: unknown;
   entries: ProfileEntry[];
   rules: Rule[];
 }
@@ -92,11 +94,15 @@ export function buildRehearsalPlanPrompt(input: RehearsalPlanPromptInput): strin
     "",
     "Current rules:",
     formatJson(input.rules),
+    ...(input.snapshot === undefined
+      ? []
+      : ["", "Current page snapshot from the extension:", formatJson(input.snapshot), ""]),
     "",
     "Planning rules:",
     "- Use only these action kinds: navigate, focus, fill, click_non_submit, scroll, wait.",
     "- There is deliberately no submit action. Never propose submitting the application. End the plan when the allowed fields are filled.",
     "- Order actions from navigation to field filling. Give each action a confidence between 0 and 1 and a short reasoning line citing the profile entry or rule it relies on.",
+    "- Prefer selectors that appear in the page snapshot fields when a snapshot is given.",
     "- If the profile lacks a value for a field, do not invent one. Skip that field and mention it in the plan reasoningTrace.",
     "",
     'Return JSON: { "postingUrl": string, "reasoningTrace": string, "actions": [{ "action": <one action object>, "confidence": 0..1, "reasoning": string }] }',

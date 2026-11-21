@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
 import type {
-  RehearsalAction,
   RehearsalActionRecord,
   SessionTimelineItem,
   SessionSummary,
@@ -8,6 +7,7 @@ import type {
 import type { ControlPlaneDb } from "../db/client";
 import { rehearsalActions, rehearsals } from "../db/schema";
 import { listSessionEvents } from "../repositories/events";
+import { toRehearsalActionRecord } from "../repositories/rehearsals";
 import { getSessionSummary } from "../repositories/sessions";
 import { listSessionRevisions } from "../repositories/revisions";
 import { listSessionTraces } from "../repositories/traces";
@@ -15,37 +15,6 @@ import { listSessionTraces } from "../repositories/traces";
 export interface SessionTimeline {
   session: SessionSummary;
   timeline: SessionTimelineItem[];
-}
-
-function toRehearsalActionRecord(row: {
-  id: string;
-  rehearsalId: string;
-  sequence: number;
-  kind: RehearsalAction["kind"];
-  target: unknown;
-  value: string | null;
-  confidence: number;
-  status: RehearsalActionRecord["status"];
-  traceId: string | null;
-  createdAt: Date;
-}): RehearsalActionRecord {
-  // The target JSON holds the kind-specific fields; fill keeps its value column.
-  const target = (typeof row.target === "object" && row.target !== null ? row.target : {}) as Record<string, unknown>;
-  const action = {
-    kind: row.kind,
-    ...target,
-    ...(row.value !== null ? { value: row.value } : {}),
-  } as RehearsalAction;
-  return {
-    id: row.id,
-    rehearsalId: row.rehearsalId,
-    sequence: row.sequence,
-    action,
-    confidence: row.confidence,
-    status: row.status,
-    traceId: row.traceId,
-    createdAt: row.createdAt.toISOString(),
-  };
 }
 
 async function listSessionRehearsalActions(
