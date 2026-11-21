@@ -13,6 +13,16 @@ import type {
 
 export type BrowserKind = "chrome" | "firefox";
 
+/**
+ * One submission attempt a guard refused. The reasons mirror
+ * rehearsalBlockReasonSchema in @dex-ai/shared and the discriminated
+ * blocked-attempt request the control plane records on
+ * POST /api/rehearsals/:id/blocked-attempts.
+ */
+export type BlockedAttempt =
+  | { reason: "submit_navigation"; url: string }
+  | { reason: "submit_control" | "submit_activation"; selector: string };
+
 export function getBrowserKind(): BrowserKind {
   return navigator.userAgent.includes("Firefox") ? "firefox" : "chrome";
 }
@@ -38,11 +48,21 @@ export interface StartRehearsalMessage {
   postingUrl?: string;
 }
 
+/** A submit the content guard refused; the coordinator forwards it to the control plane. */
+export interface BlockedAttemptReportMessage {
+  type: "dex-ai:blocked-attempt";
+  /** Null when the tab never learned its rehearsal id; the coordinator fills its own. */
+  rehearsalId: string | null;
+  actionId: string | null;
+  attempt: BlockedAttempt;
+}
+
 export type ExtensionMessage =
   | SetControlPlaneSettingsMessage
   | GetControlPlaneSettingsMessage
   | ObservedEventsMessage
-  | StartRehearsalMessage;
+  | StartRehearsalMessage
+  | BlockedAttemptReportMessage;
 
 export function isExtensionMessage(raw: unknown): raw is ExtensionMessage {
   return (
@@ -65,11 +85,14 @@ export type StartRehearsalResponse =
   | { ok: true; rehearsal: RehearsalRecord }
   | { ok: false; error: string };
 
+export type BlockedAttemptResponse = { ok: true } | { ok: false; error: string };
+
 export type CoordinatorResponse =
   | ControlPlaneSettingsResponse
   | SaveSettingsResponse
   | QueuedEventsResponse
-  | StartRehearsalResponse;
+  | StartRehearsalResponse
+  | BlockedAttemptResponse;
 
 // Messages the coordinator sends into the active tab's content script.
 // Mirrors rehearsalPauseReasonSchema from @dex-ai/shared.

@@ -12,6 +12,7 @@ import {
   type TeachingDraft,
 } from "@dex-ai/shared";
 import type { ControlPlaneSettings } from "./auth";
+import type { BlockedAttempt } from "./messages";
 
 /** Authenticated REST calls from the extension to the local control plane. */
 
@@ -117,4 +118,16 @@ export async function postRehearsalDecision(
 ): Promise<RehearsalRecord> {
   const body = await authenticatedPost(settings, `/api/rehearsals/${rehearsalId}/decisions`, decision);
   return rehearsalDecisionResponseSchema.parse(body).rehearsal;
+}
+
+/**
+ * POST /api/rehearsals/:id/blocked-attempts with a submission the guard
+ * refused. The route response only confirms storage, so no fields return.
+ */
+export async function postBlockedAttempt(
+  settings: ControlPlaneSettings,
+  rehearsalId: string,
+  attempt: BlockedAttempt,
+): Promise<void> {
+  await authenticatedPost(settings, `/api/rehearsals/${rehearsalId}/blocked-attempts`, attempt);
 }

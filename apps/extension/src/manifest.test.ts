@@ -24,6 +24,21 @@ describe("shared manifest identity", () => {
       expect(output.description).toMatch(/control plane/);
     }
   });
+
+  it("injects the observer and the MAIN-world submit bridge in both browsers", () => {
+    const contentScripts = [
+      { matches: ["http://*/*", "https://*/*"], js: ["src/content/index.ts"], run_at: "document_idle" },
+      {
+        matches: ["http://*/*", "https://*/*"],
+        js: ["src/content/submit-bridge.ts"],
+        run_at: "document_start",
+        world: "MAIN",
+      },
+    ];
+    for (const mode of ["chrome", "firefox"] as const) {
+      expect(buildManifest(mode).content_scripts).toEqual(contentScripts);
+    }
+  });
 });
 
 describe("chrome build", () => {
@@ -46,7 +61,8 @@ describe("firefox build", () => {
     const output = buildManifest("firefox");
     expect(output.background).toEqual({ scripts: ["src/background/index.ts"] });
     expect(output.browser_specific_settings).toEqual({
-      gecko: { id: FIREFOX_ADDON_ID, strict_min_version: "121.0" },
+      // The MAIN-world content script needs Firefox 128 or newer.
+      gecko: { id: FIREFOX_ADDON_ID, strict_min_version: "128.0" },
     });
     expect(FIREFOX_ADDON_ID).toMatch(/^\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}$/);
     expect(output.key).toBeUndefined();

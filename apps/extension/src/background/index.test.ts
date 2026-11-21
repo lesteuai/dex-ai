@@ -489,3 +489,84 @@ describe("rehearsal start gate", () => {
     expect(body.postingUrl).toBe(TEST_SESSION.postingUrl);
   });
 });
+
+describe("blocked attempt forwarding", () => {
+  it("forwards a guard-refused attempt to the active rehearsal's blocked-attempts endpoint", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { rehearsal: TEST_REHEARSAL, action: null }));
+    await storeToken("token-123");
+    // The stream tells the coordinator which rehearsal is active.
+    currentSocket().onmessage?.({
+      data: streamEnvelope("rehearsal.executed", { action: rehearsalActionRecord("executed") }),
+    });
+    await settleMicrotasks();
+
+    const response = await sendRuntimeMessage({
+      type: "dex-ai:blocked-attempt",
+      rehearsalId: null,
+      actionId: null,
+      attempt: { reason: "submit_activation", selector: "#submit-application" },
+    });
+
+    expect(response).toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe(`http://127.0.0.1:8787/api/rehearsals/${TEST_REHEARSAL_ID}/blocked-attempts`);
+    expect(init.method).toBe("POST");
+    expect((init.headers as Record<string, string>).authorization).toBe("Bearer token-123");
+    // Only the discriminated attempt reaches the control plane; the report
+    // metadata stays with the coordinator.
+    expect(JSON.parse(init.body as string)).toEqual({
+      reason: "submit_activation",
+      selector: "#submit-application",
+    });
+  });
+
+  it("prefers the rehearsal id the tab reported itself", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { rehearsal: TEST_REHEARSAL, action: null }));
+    await storeToken("token-123");
+    const reportedRehearsalId = "77777777-7777-4777-8777-777777777777";
+
+    const response = await sendRuntimeMessage({
+      type: "dex-ai:blocked-attempt",
+      rehearsalId: reportedRehearsalId,
+      actionId: null,
+      attempt: { reason: "submit_navigation", url: "https://jobs.example.test/apply/submit" },
+    });
+
+    expect(response).toEqual({ ok: true });
+    const [url] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe(`http://127.0.0.1:8787/api/rehearsals/${reportedRehearsalId}/blocked-attempts`);
+  });
+
+  it("refuses a report when no rehearsal is active", async () => {
+    await storeToken("token-123");
+
+    const response = await sendRuntimeMessage({
+      type: "dex-ai:blocked-attempt",
+      rehearsalId: null,
+      actionId: null,
+      attempt: { reason: "submit_control", selector: "[data-testid='application-form']" },
+    });
+
+    expect(response).toEqual({ ok: false, error: "No rehearsal is active" });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("reports a failed forward with the control plane error", async () => {
+    fetchMock.mockRejectedValueOnce(new Error("control plane unreachable"));
+    await storeToken("token-123");
+    currentSocket().onmessage?.({
+      data: streamEnvelope("rehearsal.executed", { action: rehearsalActionRecord("executed") }),
+    });
+    await settleMicrotasks();
+
+    const response = await sendRuntimeMessage({
+      type: "dex-ai:blocked-attempt",
+      rehearsalId: null,
+      actionId: null,
+      attempt: { reason: "submit_control", selector: "[data-testid='application-form']" },
+    });
+
+    expect(response).toEqual({ ok: false, error: "control plane unreachable" });
+  });
+});

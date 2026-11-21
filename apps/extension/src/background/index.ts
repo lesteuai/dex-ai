@@ -13,12 +13,14 @@ import {
 } from "../shared/auth";
 import {
   ControlPlaneRequestError,
+  postBlockedAttempt,
   postEventBatch,
   postRehearsalDecision,
   startRehearsal,
 } from "../shared/api-client";
 import {
   isExtensionMessage,
+  type BlockedAttemptResponse,
   type CoordinatorResponse,
   type ExtensionMessage,
   type StartRehearsalResponse,
@@ -301,6 +303,23 @@ async function handleStartRehearsal(message: Extract<ExtensionMessage, { type: "
   }
 }
 
+async function handleBlockedAttempt(
+  message: Extract<ExtensionMessage, { type: "dex-ai:blocked-attempt" }>,
+): Promise<BlockedAttemptResponse> {
+  // Only the paused tab message tells a tab its rehearsal id, so reports
+  // without one fall back to the id tracked from the stream.
+  const rehearsalId = message.rehearsalId ?? activeRehearsalId;
+  if (rehearsalId === null) return { ok: false, error: "No rehearsal is active" };
+  const settings = await getControlPlaneSettings();
+  if (!settings.token) return { ok: false, error: "No control plane token is stored" };
+  try {
+    await postBlockedAttempt(settings, rehearsalId, message.attempt);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: errorText(error) };
+  }
+}
+
 async function handleRuntimeMessage(message: ExtensionMessage): Promise<CoordinatorResponse> {
   switch (message.type) {
     case "dex-ai:get-settings":
@@ -318,6 +337,8 @@ async function handleRuntimeMessage(message: ExtensionMessage): Promise<Coordina
     }
     case "dex-ai:start-rehearsal":
       return handleStartRehearsal(message);
+    case "dex-ai:blocked-attempt":
+      return handleBlockedAttempt(message);
   }
 }
 

@@ -24,6 +24,26 @@ export const CHROME_PUBLIC_KEY =
 // about:debugging into the control plane extensionOrigins config.
 export const FIREFOX_ADDON_ID = "{b706199c-64b7-4d01-b09b-cffc908f95bd}";
 
+// AC-3 and AC-10: the observer runs in the isolated world on every http(s)
+// tab, so real job sites and the local fixture are both covered. The submit
+// bridge runs in the page world at document start so direct submit() calls
+// by page code are interceptable before any request leaves the page.
+const CONTENT_SCRIPT_MATCHES = ["http://*/*", "https://*/*"];
+
+const CONTENT_SCRIPTS = [
+  {
+    matches: CONTENT_SCRIPT_MATCHES,
+    js: ["src/content/index.ts"],
+    run_at: "document_idle",
+  },
+  {
+    matches: CONTENT_SCRIPT_MATCHES,
+    js: ["src/content/submit-bridge.ts"],
+    run_at: "document_start",
+    world: "MAIN" as const,
+  },
+];
+
 const SHARED_MANIFEST = {
   manifest_version: 3 as const,
   name: "Dex AI",
@@ -33,6 +53,7 @@ const SHARED_MANIFEST = {
   permissions: ["storage", "tabs"],
   host_permissions: CONTROL_PLANE_HOST_PERMISSIONS,
   action: { default_popup: "src/popup/index.html" },
+  content_scripts: CONTENT_SCRIPTS,
 };
 
 export default defineManifest(({ mode }) => {
@@ -41,7 +62,8 @@ export default defineManifest(({ mode }) => {
       ...SHARED_MANIFEST,
       background: { scripts: ["src/background/index.ts"] },
       browser_specific_settings: {
-        gecko: { id: FIREFOX_ADDON_ID, strict_min_version: "121.0" },
+        // world "MAIN" in content scripts needs Firefox 128 or newer.
+        gecko: { id: FIREFOX_ADDON_ID, strict_min_version: "128.0" },
       },
     };
   }

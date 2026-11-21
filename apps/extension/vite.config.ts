@@ -11,11 +11,19 @@ function resolveBrowserTarget(mode: string): ExtensionBrowser {
 }
 
 // One source, two targets: the Vite mode (chrome or firefox) picks the CRXJS
-// browser target and a separate output directory under dist/.
+// browser target and a separate output directory under dist/. The MAIN-world
+// submit bridge is built as a standalone IIFE: the CRXJS content-script
+// loader relies on extension APIs the page world cannot use.
 export default defineConfig(({ mode }) => {
   const browser = resolveBrowserTarget(mode);
   return {
-    plugins: [crx({ manifest, browser })],
+    plugins: [
+      crx({
+        manifest,
+        browser,
+        contentScripts: { standaloneFiles: ["src/content/submit-bridge.ts"] },
+      }),
+    ],
     build: { outDir: `dist/${browser}`, emptyOutDir: true },
   };
 });

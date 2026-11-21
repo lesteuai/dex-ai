@@ -37,6 +37,14 @@ describe("extension message guard", () => {
     expect(
       isExtensionMessage({ type: "dex-ai:start-rehearsal", postingUrl: TEST_SESSION.postingUrl }),
     ).toBe(true);
+    expect(
+      isExtensionMessage({
+        type: "dex-ai:blocked-attempt",
+        rehearsalId: null,
+        actionId: null,
+        attempt: { reason: "submit_activation", selector: "#submit-application" },
+      }),
+    ).toBe(true);
   });
 
   it("rejects values without a dex-ai message type", () => {
