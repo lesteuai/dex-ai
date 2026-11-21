@@ -18,11 +18,25 @@ class FakeWebSocket {
   }
 }
 
+/** Empty but well-shaped payloads so every mounted panel query resolves cleanly. */
+function payloadForPath(path: string): Record<string, unknown> {
+  if (path === "/health") return { ok: true };
+  if (path === "/sessions") return { sessions: [] };
+  if (path === "/profile") return { entries: [] };
+  if (path === "/rules") return { rules: [] };
+  if (path === "/revisions") return { revisions: [] };
+  if (path === "/teaching/drafts") return { drafts: [] };
+  return { ok: true };
+}
+
 beforeEach(() => {
   vi.stubGlobal("WebSocket", FakeWebSocket);
   vi.stubGlobal(
     "fetch",
-    vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true }) })),
+    vi.fn(async (input: RequestInfo | URL) => {
+      const path = new URL(String(input), "http://127.0.0.1").pathname.replace(/^\/api/, "");
+      return { ok: true, status: 200, json: async () => payloadForPath(path) };
+    }),
   );
   window.localStorage.setItem(TOKEN_STORAGE_KEY, TOKEN);
 });
@@ -61,5 +75,23 @@ describe("App shell", () => {
 
     expect(screen.getByRole("tab", { name: "Teaching Console" }).getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tabpanel").id).toBe("panel-teaching-console");
+  });
+
+  it("renders the real profile editor as the default panel", async () => {
+    renderApp();
+
+    await screen.findByText(/No profile entries yet/);
+    expect(screen.getByLabelText("Inferred profile")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Run profile inference" }).hasAttribute("disabled")).toBe(true);
+  });
+
+  it("renders the real session timeline panel on its tab", async () => {
+    renderApp();
+
+    await screen.findByText(/No profile entries yet/);
+    fireEvent.click(screen.getByRole("tab", { name: "Session Timeline" }));
+
+    await screen.findByText(/No sessions captured yet/);
+    expect(screen.getByRole("tabpanel").id).toBe("panel-session-timeline");
   });
 });

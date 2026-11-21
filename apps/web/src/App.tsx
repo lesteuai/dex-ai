@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { createApiClient, type ApiClient } from "./api/client";
 import { PrivacyNotice } from "./components/PrivacyNotice";
 import { TOKEN_STORAGE_KEY, TokenGate } from "./components/TokenGate";
+import { ProfileEditor } from "./panels/ProfileEditor";
+import { RehearsalObserver } from "./panels/RehearsalObserver";
+import { SessionTimeline } from "./panels/SessionTimeline";
+import { TeachingConsole } from "./panels/TeachingConsole";
 import { useDexStream, type StreamStatus } from "./stream/useDexStream";
 
 const PANELS = [
@@ -24,15 +29,28 @@ function handleSignOut(setToken: (token: string | null) => void) {
   setToken(null);
 }
 
+function renderActivePanel(panelId: PanelId, token: string, client: ApiClient) {
+  switch (panelId) {
+    case "profile-rules":
+      return <ProfileEditor token={token} />;
+    case "session-timeline":
+      return <SessionTimeline client={client} />;
+    case "teaching-console":
+      return <TeachingConsole client={client} token={token} />;
+    case "rehearsal-observer":
+      return <RehearsalObserver client={client} />;
+  }
+}
+
 /** Control-plane shell: token gate, live stream status and the four panel tabs. */
 export function App() {
   const [token, setToken] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<PanelId>("profile-rules");
   const streamStatus = useDexStream(token);
+  // One client per authenticated token, shared by the client-backed panels.
+  const client = useMemo(() => (token === null ? null : createApiClient(token)), [token]);
 
-  if (token === null) return <TokenGate onAuthenticated={setToken} />;
-
-  const activePanelLabel = PANELS.find((panel) => panel.id === activePanel)?.label ?? "";
+  if (token === null || client === null) return <TokenGate onAuthenticated={setToken} />;
 
   return (
     <div className="shell">
@@ -67,9 +85,7 @@ export function App() {
 
       <main className="panel-area">
         <section role="tabpanel" id={`panel-${activePanel}`} aria-labelledby={`tab-${activePanel}`}>
-          <p className="panel-placeholder">
-            The {activePanelLabel} panel is not implemented yet; it arrives in the next milestone wave.
-          </p>
+          {renderActivePanel(activePanel, token, client)}
         </section>
 
         <PrivacyNotice />

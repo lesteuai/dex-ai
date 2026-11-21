@@ -15,10 +15,13 @@
     "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "e2e": "playwright test -c tests/e2e"
+    "e2e": "playwright test -c tests/e2e",
+    "e2e:web": "playwright test -c tests/e2e --project=chromium --project=firefox",
+    "e2e:extension": "playwright test -c tests/e2e extension"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.65.1",
     "@typescript/native": "npm:typescript@7.0.2",
     "eslint": "10.15.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
