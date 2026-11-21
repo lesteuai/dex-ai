@@ -156,7 +156,7 @@ Status: in progress
 
 ## Wave 7
 
-- [ ] T21: Build content observer and submit guard
+- [x] T21: Build content observer and submit guard (commit cab2bf1)
   - Satisfies: AC-3, AC-10, AC-12
   - Files: `apps/extension/src/content/index.ts`, `apps/extension/src/content/observer.ts`, `apps/extension/src/content/snapshot.ts`, `apps/extension/src/content/rehearsal-executor.ts`, `apps/extension/src/content/submit-guard.ts`
   - Do: Capture searches and filters, postings opened and field fills from real tabs and the local fixture. Build posting snapshots for the planner. Execute only approved rehearsal actions. Block form submit events, submit-button activation and direct submit calls on forms under rehearsal, and report blocked attempts to the background coordinator.
