@@ -73,7 +73,7 @@ Status: in progress
 
 ## Wave 4
 
-- [ ] T10: Implement OpenCode SDK v2 agent adapter
+- [x] T10: Implement OpenCode SDK v2 agent adapter (commit 4c2dcc0)
   - Satisfies: AC-4, AC-6, AC-9
   - Files: `apps/control-plane/src/agent/opencode-adapter.ts`, `apps/control-plane/src/agent/factory.ts`
   - Do: Create one `OpenCode.create()` host with a persistent database path and structured logging. Create sessions under the data directory workspace, prompt with task-specific text, filter `opencode.events.subscribe()` by session ID, normalize events into the shared adapter contract, validate final JSON with the result schemas, support cancellation through request signals, and close the host explicitly. Select the deterministic adapter when the runtime asks for it.
