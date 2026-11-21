@@ -34,7 +34,7 @@ Status: in progress
 
 ## Wave 2
 
-- [ ] T5: Define SQLite schema, migrations and database client
+- [x] T5: Define SQLite schema, migrations and database client (commit 7b3eb79)
   - Satisfies: AC-3, AC-4, AC-5, AC-6, AC-7, AC-13, AC-15, AC-16
   - Files: `apps/control-plane/src/db/schema.ts`, `apps/control-plane/src/db/client.ts`, `apps/control-plane/src/db/migrate.ts`, `apps/control-plane/drizzle.config.ts`, `apps/control-plane/drizzle/0000_init.sql`
   - Do: Define all tables from the plan with Drizzle SQLite columns, JSON text modes, unique dedupe key, foreign keys and indexes. Create the node:sqlite client with WAL and foreign keys enabled. Generate the initial migration and apply it idempotently with Drizzle's node-sqlite migrator. Add a transaction helper using prepared `BEGIN`, `COMMIT` and `ROLLBACK` statements.
