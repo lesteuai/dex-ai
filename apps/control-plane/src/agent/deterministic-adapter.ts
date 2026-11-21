@@ -13,11 +13,19 @@ export type ScriptedAgentFixtures = Readonly<
 >;
 
 // Fixed fixture event and rule ids so scripted results stay valid UUID references.
-const SEARCH_EVENT_ID = "7a8b9c0d-1e2f-4a3b-8c4d-5e6f7a8b9c0d";
-const NAME_FIELD_EVENT_ID = "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b";
-const SECOND_NAME_FIELD_EVENT_ID = "9c0d1e2f-3a4b-4c5d-8e6f-7a8b9c0d1e2f";
-const EMAIL_FIELD_EVENT_ID = "6f7a8b9c-0d1e-4f2a-9b3c-4d5e6f7a8b9c";
-const COVER_LETTER_REASON_EVENT_ID = "8b9c0d1e-2f3a-4b4c-9d5e-6f7a8b9c0d1e";
+// Exported for tests that seed a session whose events back the scripted citations.
+export const fixtureEventIds = {
+  search: "7a8b9c0d-1e2f-4a3b-8c4d-5e6f7a8b9c0d",
+  nameField: "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b",
+  secondNameField: "9c0d1e2f-3a4b-4c5d-8e6f-7a8b9c0d1e2f",
+  emailField: "6f7a8b9c-0d1e-4f2a-9b3c-4d5e6f7a8b9c",
+  coverLetterReason: "8b9c0d1e-2f3a-4b4c-9d5e-6f7a8b9c0d1e",
+} as const;
+const SEARCH_EVENT_ID = fixtureEventIds.search;
+const NAME_FIELD_EVENT_ID = fixtureEventIds.nameField;
+const SECOND_NAME_FIELD_EVENT_ID = fixtureEventIds.secondNameField;
+const EMAIL_FIELD_EVENT_ID = fixtureEventIds.emailField;
+const COVER_LETTER_REASON_EVENT_ID = fixtureEventIds.coverLetterReason;
 const EMAIL_FILL_RULE_ID = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
 
 export const defaultScriptedFixtures: ScriptedAgentFixtures = {

@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import type { Revision } from "@dex-ai/shared";
 import type { ControlPlaneDb } from "../db/client";
 import { revisions } from "../db/schema";
@@ -33,6 +33,23 @@ export function toRevision(row: RevisionRow): Revision {
   };
 }
 
+/** Convert a constructed revision into the API shape without a database round trip. */
+export function toApiRevision(revision: NewRevision): Revision {
+  return {
+    id: revision.id,
+    entityType: revision.entityType,
+    entityId: revision.entityId,
+    sourceSessionId: revision.sourceSessionId,
+    traceId: revision.traceId,
+    actor: revision.actor,
+    // A first-ever value has no prior value, so it is absent in the API shape.
+    before: revision.before ?? undefined,
+    after: revision.after,
+    reason: revision.reason,
+    createdAt: revision.createdAt.toISOString(),
+  };
+}
+
 export async function insertRevision(db: ControlPlaneDb, revision: NewRevision): Promise<void> {
   await db
     .insert(revisions)
@@ -49,5 +66,24 @@ export async function listSessionRevisions(
     .from(revisions)
     .where(eq(revisions.sourceSessionId, sessionId))
     .orderBy(asc(revisions.createdAt), asc(revisions.id));
+  return rows.map(toRevision);
+}
+
+export interface RevisionFilter {
+  entityType?: string;
+  sessionId?: string;
+}
+
+/** Revision history endpoint view: newest first, filterable by entity and session. */
+export async function listRevisions(db: ControlPlaneDb, filter: RevisionFilter): Promise<Revision[]> {
+  const conditions = [
+    filter.entityType !== undefined ? eq(revisions.entityType, filter.entityType) : undefined,
+    filter.sessionId !== undefined ? eq(revisions.sourceSessionId, filter.sessionId) : undefined,
+  ];
+  const rows = await db
+    .select()
+    .from(revisions)
+    .where(and(...conditions))
+    .orderBy(desc(revisions.createdAt), desc(revisions.id));
   return rows.map(toRevision);
 }

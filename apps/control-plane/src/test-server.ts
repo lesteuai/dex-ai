@@ -1,13 +1,20 @@
 import { randomUUID } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import type { DatabaseSync } from "node:sqlite";
+import type { WebSocketLike } from "@hono/node-server";
 import type {
   ObservedEventEnvelope,
   PostEventsBatchResponse,
   SessionDescriptor,
   SessionSummary,
   SessionTimelineItem,
+  WsEvent,
 } from "@dex-ai/shared";
+import { fixtureEventIds } from "./agent/deterministic-adapter";
+import { createDb, openSqliteDatabase, type ControlPlaneDb } from "./db/client";
+import { runMigrations } from "./db/migrate";
+import { storeEventBatch } from "./repositories/events";
 import type { ControlPlaneConfig } from "./config";
 import { startControlPlane, type ControlPlaneHandle } from "./index";
 import type { SessionTimeline } from "./services/session-timeline";
@@ -188,3 +195,116 @@ export async function getSessionTimeline(
 
 export const storedEventIds = (timeline: SessionTimelineItem[]): string[] =>
   timeline.flatMap((item) => (item.kind === "event" ? [item.event.id] : []));
+
+// Temporary SQLite database and route-mount helpers shared by direct
+// app.request() route tests.
+
+export interface TestDatabase {
+  database: DatabaseSync;
+  db: ControlPlaneDb;
+  dbPath: string;
+  dataDir: string;
+  /** Closes the connection only; call reopenTestDatabase to assert persistence. */
+  close(): void;
+  /** Closes the connection and removes the temporary data directory. */
+  dispose(): void;
+}
+
+export function reopenTestDatabase(dbPath: string): { database: DatabaseSync; db: ControlPlaneDb } {
+  const database = openSqliteDatabase(dbPath);
+  return { database, db: createDb(database) };
+}
+
+export async function openTestDatabase(): Promise<TestDatabase> {
+  const dataDir = mkdtempSync(join(TEMP_BASE, "dex-ai-db-"));
+  const dbPath = join(dataDir, "control-plane.sqlite");
+  const database = openSqliteDatabase(dbPath);
+  await runMigrations(database);
+  return {
+    database,
+    db: createDb(database),
+    dbPath,
+    dataDir,
+    close: () => {
+      if (database.isOpen) database.close();
+    },
+    dispose: () => {
+      if (database.isOpen) database.close();
+      rmSync(dataDir, { recursive: true, force: true });
+    },
+  };
+}
+
+// Events citing the same ids the deterministic adapter's default profile
+// fixture cites, so a seeded session fully supports the scripted inference.
+export function makeFixtureInferenceEvents(): ObservedEventEnvelope[] {
+  return [
+    {
+      type: "search_filter",
+      id: fixtureEventIds.search,
+      ts: "2026-11-21T10:00:00.000Z",
+      payload: { pageUrl: SEARCH_PAGE_URL, query: "typescript", filters: {} },
+    },
+    {
+      type: "field_filled",
+      id: fixtureEventIds.nameField,
+      ts: "2026-11-21T10:05:00.000Z",
+      payload: { pageUrl: POSTING_PAGE_URL, selector: "#full-name", value: "Jordan Lee" },
+    },
+    {
+      type: "field_filled",
+      id: fixtureEventIds.secondNameField,
+      ts: "2026-11-21T10:06:00.000Z",
+      payload: { pageUrl: POSTING_PAGE_URL, selector: "#full-name", value: "Jordan Lee" },
+    },
+    {
+      type: "field_filled",
+      id: fixtureEventIds.emailField,
+      ts: "2026-11-21T10:10:00.000Z",
+      payload: { pageUrl: POSTING_PAGE_URL, selector: "#email", value: "jordan.lee@example.com" },
+    },
+    {
+      type: "reason_stated",
+      id: fixtureEventIds.coverLetterReason,
+      ts: "2026-11-21T10:15:00.000Z",
+      payload: { pageUrl: POSTING_PAGE_URL, input: "text", text: "reuse the stored cover letter paragraph" },
+    },
+  ];
+}
+
+export async function seedFixtureInferenceSession(testDb: {
+  database: DatabaseSync;
+  db: ControlPlaneDb;
+}): Promise<SessionDescriptor> {
+  const session = makeSessionDescriptor();
+  await storeEventBatch(testDb.database, testDb.db, session, makeFixtureInferenceEvents());
+  return session;
+}
+
+// A stream hub client that records every validated envelope it receives.
+
+export interface RecordingStreamClient extends WebSocketLike {
+  messages: WsEvent[];
+}
+
+export function recordingStreamClient(): RecordingStreamClient {
+  const client: RecordingStreamClient = {
+    protocol: "dex-ai.test",
+    readyState: 1,
+    messages: [],
+    close: () => undefined,
+    send: (data) => {
+      client.messages.push(JSON.parse(String(data)) as WsEvent);
+    },
+    on: () => client,
+    off: () => client,
+  };
+  return client;
+}
+
+export function streamMessagesOfType<Type extends WsEvent["type"]>(
+  messages: WsEvent[],
+  type: Type,
+): Array<Extract<WsEvent, { type: Type }>> {
+  return messages.filter((message): message is Extract<WsEvent, { type: Type }> => message.type === type);
+}
