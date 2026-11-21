@@ -163,7 +163,7 @@ Status: in progress
   - Tests: Fixture DOM event detection, snapshot shape, approved fill execution, submit click blocked, form submit event blocked, no submit command accepted from stream messages.
   - Done when: Content script tests pass in a DOM test environment and the submit guard records blocked attempts.
 
-- [ ] T22: Build extension popup and local voice capture
+- [x] T22: Build extension popup and local voice capture (commit 3072666)
   - Satisfies: AC-2, AC-8, AC-10
   - Files: `apps/extension/src/popup/index.html`, `apps/extension/src/popup/main.tsx`, `apps/extension/src/popup/styles.css`, `apps/extension/src/shared/audio.ts`, `apps/extension/src/shared/recorder.ts`
   - Do: Provide token setup, microphone permission handling, Web Audio capture resampled to 16 kHz mono 16-bit WAV, authenticated STT request, transcript confirmation, teaching draft creation, and start rehearsal for the current tab. Keep typed teaching available when speech is unavailable.
