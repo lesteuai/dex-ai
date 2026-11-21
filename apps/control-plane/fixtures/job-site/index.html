@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fixture Job Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header" data-testid="site-header">
+    <a class="site-title" href="index.html" data-testid="site-title">Fixture Job Board</a>
+    <nav class="site-nav" data-testid="site-nav">
+      <a href="search.html" data-testid="nav-search">Search postings</a>
+      <a href="index.html" data-testid="nav-home">Home</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero" data-testid="landing-hero">
+      <h1 data-testid="landing-title">A deterministic local job site</h1>
+      <p data-testid="landing-intro">
+        This site is a self-contained fixture for Dex AI rehearsals. It runs
+        locally, uses no scripts and no remote assets, and always shows the
+        same postings, filters and form fields.
+      </p>
+      <a class="button" href="search.html" data-testid="browse-postings">Browse postings</a>
+    </section>
+
+    <section class="card" data-testid="rehearsal-flow">
+      <h2>How rehearsals use this fixture</h2>
+      <ol class="steps" data-testid="rehearsal-steps">
+        <li data-testid="rehearsal-step-search">Search for postings and set filters.</li>
+        <li data-testid="rehearsal-step-posting">Open a posting and read its detail.</li>
+        <li data-testid="rehearsal-step-apply">Open the application form and fill its fields.</li>
+        <li data-testid="rehearsal-step-submit">Attempt to submit. The control plane blocks every submission.</li>
+      </ol>
+      <p data-testid="submission-guarantee">
+        No application is ever submitted from this fixture. Submission
+        attempts are blocked by the rehearsal guard and recorded as blocked
+        actions in the session history.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer" data-testid="site-footer">
+    Deterministic fixture for Dex AI. No data leaves this page.
+  </footer>
+</body>
+</html>

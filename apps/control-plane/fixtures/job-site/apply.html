@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apply - Senior Frontend Engineer - Fixture Job Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header" data-testid="site-header">
+    <a class="site-title" href="index.html" data-testid="site-title">Fixture Job Board</a>
+    <nav class="site-nav" data-testid="site-nav">
+      <a href="search.html" data-testid="nav-search">Search postings</a>
+      <a href="index.html" data-testid="nav-home">Home</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <a class="back-link" href="posting.html?id=frontend-engineer" data-testid="back-to-posting">Back to posting detail</a>
+
+    <section class="card" data-testid="posting-summary">
+      <h1 data-testid="application-heading">Apply for a posting</h1>
+      <p class="posting-meta">
+        <span data-testid="summary-posting-id">Posting id: frontend-engineer</span>
+        <span data-testid="summary-posting-title">Senior Frontend Engineer</span>
+        <span data-testid="summary-posting-company">Acme Analytics</span>
+        <span data-testid="summary-posting-location">Remote</span>
+      </p>
+      <p class="fixture-note" data-testid="submission-note">
+        The rehearsal guard blocks every submission on this form. Filling
+        fields is allowed; the submit button never sends an application.
+      </p>
+    </section>
+
+    <form class="card" method="post" action="applications" data-testid="application-form">
+      <div class="form-field">
+        <label class="field" for="full-name">Full name</label>
+        <input class="input" type="text" id="full-name" name="fullName"
+               required data-testid="field-full-name">
+      </div>
+
+      <div class="form-field">
+        <label class="field" for="email">Email address</label>
+        <input class="input" type="email" id="email" name="email"
+               required data-testid="field-email">
+      </div>
+
+      <div class="form-field">
+        <label class="field" for="phone">Phone number</label>
+        <input class="input" type="tel" id="phone" name="phone"
+               required data-testid="field-phone">
+      </div>
+
+      <div class="form-field">
+        <label class="field" for="current-location">Current location</label>
+        <input class="input" type="text" id="current-location" name="currentLocation"
+               data-testid="field-current-location">
+      </div>
+
+      <div class="form-field">
+        <label class="field" for="portfolio-url">Portfolio or resume URL</label>
+        <input class="input" type="url" id="portfolio-url" name="portfolioUrl"
+               data-testid="field-portfolio-url">
+      </div>
+
+      <div class="form-field">
+        <label class="field" for="years-experience">Years of experience</label>
+        <input class="input" type="number" id="years-experience" name="yearsExperience"
+               min="0" max="50" data-testid="field-years-experience">
+      </div>
+
+      <div class="form-field">
+        <label class="field" for="expected-salary">Expected salary</label>
+        <input class="input" type="text" id="expected-salary" name="expectedSalary"
+               data-testid="field-expected-salary">
+      </div>
+
+      <div class="form-field">
+        <label class="field" for="cover-letter">Why this role?</label>
+        <textarea class="input" id="cover-letter" name="coverLetter" rows="6"
+                  data-testid="field-cover-letter"></textarea>
+      </div>
+
+      <div class="form-field">
+        <label class="checkbox-field">
+          <input type="checkbox" id="consent" name="consent"
+                 required data-testid="field-consent">
+          I confirm the information above is accurate
+        </label>
+      </div>
+
+      <div class="form-actions" data-testid="form-actions">
+        <button class="button button-primary" type="submit" data-testid="submit-application">Submit application</button>
+        <a class="button button-secondary" href="posting.html?id=frontend-engineer" data-testid="cancel-application">Cancel and return to posting</a>
+      </div>
+    </form>
+  </main>
+
+  <footer class="site-footer" data-testid="site-footer">
+    Deterministic fixture for Dex AI. No data leaves this page.
+  </footer>
+</body>
+</html>

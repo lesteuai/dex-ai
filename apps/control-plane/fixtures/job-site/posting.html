@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Senior Frontend Engineer at Acme Analytics - Fixture Job Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header" data-testid="site-header">
+    <a class="site-title" href="index.html" data-testid="site-title">Fixture Job Board</a>
+    <nav class="site-nav" data-testid="site-nav">
+      <a href="search.html" data-testid="nav-search">Search postings</a>
+      <a href="index.html" data-testid="nav-home">Home</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <a class="back-link" href="search.html" data-testid="back-to-search">Back to search results</a>
+
+    <article class="card" data-testid="posting-detail">
+      <p class="posting-meta">
+        <span data-testid="posting-id">Posting id: frontend-engineer</span>
+      </p>
+      <h1 data-testid="posting-title">Senior Frontend Engineer</h1>
+      <p class="posting-meta">
+        <span data-testid="posting-company">Acme Analytics</span>
+        <span data-testid="posting-location">Remote</span>
+        <span data-testid="posting-job-type">Full-time</span>
+      </p>
+      <p class="posting-salary" data-testid="posting-salary">$120,000 - $150,000 per year</p>
+
+      <section data-testid="posting-description">
+        <h2>About the role</h2>
+        <p>
+          Acme Analytics builds dashboards for operations teams. You will own
+          the web client end to end, from component architecture to
+          accessibility. The team ships weekly and reviews every pull request.
+        </p>
+      </section>
+
+      <section data-testid="posting-responsibilities">
+        <h2>Responsibilities</h2>
+        <ul>
+          <li>Build and maintain the React client used by 40,000 daily users.</li>
+          <li>Design component APIs with the design system team.</li>
+          <li>Keep bundle size and interaction latency within budget.</li>
+          <li>Mentor two junior engineers through code review.</li>
+        </ul>
+      </section>
+
+      <section data-testid="posting-requirements">
+        <h2>Requirements</h2>
+        <ul>
+          <li>Five or more years of frontend experience with TypeScript.</li>
+          <li>Deep knowledge of React, HTML and CSS.</li>
+          <li>Experience with automated accessibility testing.</li>
+          <li>Clear written communication in English.</li>
+        </ul>
+      </section>
+
+      <section data-testid="posting-benefits">
+        <h2>Benefits</h2>
+        <ul>
+          <li>Remote-first team with quarterly on-sites.</li>
+          <li>Annual learning budget of $2,000.</li>
+          <li>Health, dental and vision coverage.</li>
+        </ul>
+      </section>
+
+      <a class="button" href="apply.html?posting=frontend-engineer" data-testid="apply-link">Apply to this posting</a>
+    </article>
+
+    <p class="fixture-note" data-testid="fixture-note">
+      Fixture note: this page renders one canonical posting detail for every
+      posting id so that rehearsal expectations stay deterministic.
+    </p>
+  </main>
+
+  <footer class="site-footer" data-testid="site-footer">
+    Deterministic fixture for Dex AI. No data leaves this page.
+  </footer>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search postings - Fixture Job Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header" data-testid="site-header">
+    <a class="site-title" href="index.html" data-testid="site-title">Fixture Job Board</a>
+    <nav class="site-nav" data-testid="site-nav">
+      <a href="search.html" data-testid="nav-search">Search postings</a>
+      <a href="index.html" data-testid="nav-home">Home</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <h1 data-testid="search-heading">Search postings</h1>
+
+    <form class="card" method="get" action="search.html" data-testid="search-form">
+      <h2 data-testid="search-filters-heading">Filters</h2>
+      <div class="filter-grid" data-testid="search-filters">
+        <label class="field" for="keywords">Keywords</label>
+        <input class="input" type="text" id="keywords" name="keywords"
+               value="frontend" data-testid="filter-keywords">
+
+        <label class="field" for="location">Location</label>
+        <select class="input" id="location" name="location" data-testid="filter-location">
+          <option value="any" selected>Any location</option>
+          <option value="remote">Remote</option>
+          <option value="berlin-germany">Berlin, Germany</option>
+          <option value="chicago-il">Chicago, IL</option>
+        </select>
+
+        <label class="field" for="job-type">Job type</label>
+        <select class="input" id="job-type" name="jobType" data-testid="filter-job-type">
+          <option value="any" selected>Any type</option>
+          <option value="full-time">Full-time</option>
+          <option value="part-time">Part-time</option>
+          <option value="contract">Contract</option>
+        </select>
+
+        <label class="field" for="min-salary">Minimum salary (USD per year)</label>
+        <input class="input" type="number" id="min-salary" name="minSalary"
+               min="0" step="1000" value="80000" data-testid="filter-min-salary">
+
+        <label class="field" for="sort">Sort by</label>
+        <select class="input" id="sort" name="sort" data-testid="filter-sort">
+          <option value="relevance" selected>Relevance</option>
+          <option value="recent">Most recent</option>
+          <option value="salary">Salary</option>
+        </select>
+
+        <span class="field">Remote only</span>
+        <label class="checkbox-field">
+          <input type="checkbox" id="remote-only" name="remoteOnly" data-testid="filter-remote-only">
+          Show remote postings only
+        </label>
+
+        <span class="field"></span>
+        <button class="button" type="submit" data-testid="search-submit">Search</button>
+      </div>
+    </form>
+
+    <section data-testid="posting-list">
+      <h2 data-testid="posting-list-heading">Results</h2>
+      <p data-testid="result-count">4 postings match the current filters.</p>
+
+      <article class="card posting" data-testid="posting-item-frontend-engineer">
+        <h3><a href="posting.html?id=frontend-engineer" data-testid="posting-link-frontend-engineer">Senior Frontend Engineer</a></h3>
+        <p class="posting-meta">
+          <span data-testid="posting-company-frontend-engineer">Acme Analytics</span>
+          <span data-testid="posting-location-frontend-engineer">Remote</span>
+          <span data-testid="posting-job-type-frontend-engineer">Full-time</span>
+        </p>
+        <p class="posting-salary" data-testid="posting-salary-frontend-engineer">$120,000 - $150,000 per year</p>
+      </article>
+
+      <article class="card posting" data-testid="posting-item-backend-engineer">
+        <h3><a href="posting.html?id=backend-engineer" data-testid="posting-link-backend-engineer">Backend Engineer</a></h3>
+        <p class="posting-meta">
+          <span data-testid="posting-company-backend-engineer">Streamline Systems</span>
+          <span data-testid="posting-location-backend-engineer">Berlin, Germany</span>
+          <span data-testid="posting-job-type-backend-engineer">Full-time</span>
+        </p>
+        <p class="posting-salary" data-testid="posting-salary-backend-engineer">$95,000 - $125,000 per year</p>
+      </article>
+
+      <article class="card posting" data-testid="posting-item-data-scientist">
+        <h3><a href="posting.html?id=data-scientist" data-testid="posting-link-data-scientist">Data Scientist</a></h3>
+        <p class="posting-meta">
+          <span data-testid="posting-company-data-scientist">Northwind Health</span>
+          <span data-testid="posting-location-data-scientist">Remote</span>
+          <span data-testid="posting-job-type-data-scientist">Contract</span>
+        </p>
+        <p class="posting-salary" data-testid="posting-salary-data-scientist">$90 - $110 per hour</p>
+      </article>
+
+      <article class="card posting" data-testid="posting-item-qa-automation-engineer">
+        <h3><a href="posting.html?id=qa-automation-engineer" data-testid="posting-link-qa-automation-engineer">QA Automation Engineer</a></h3>
+        <p class="posting-meta">
+          <span data-testid="posting-company-qa-automation-engineer">Rivertech</span>
+          <span data-testid="posting-location-qa-automation-engineer">Chicago, IL</span>
+          <span data-testid="posting-job-type-qa-automation-engineer">Full-time</span>
+        </p>
+        <p class="posting-salary" data-testid="posting-salary-qa-automation-engineer">$85,000 - $105,000 per year</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer" data-testid="site-footer">
+    Deterministic fixture for Dex AI. No data leaves this page.
+  </footer>
+</body>
+</html>
