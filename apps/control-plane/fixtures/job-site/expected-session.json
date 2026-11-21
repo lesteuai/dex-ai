@@ -1,0 +1,10 @@
+{
+  "postingUrl": "http://127.0.0.1:8787/fixtures/job/posting.html",
+  "navigation": [
+    { "url": "http://127.0.0.1:8787/fixtures/job/apply.html" }
+  ],
+  "fields": [
+    { "selector": "#full-name", "value": "Jordan Lee" },
+    { "selector": "#email", "value": "jordan.lee@example.com" }
+  ]
+}
