@@ -32,6 +32,7 @@ const SHARED_MANIFEST = {
     "Development extension that observes job-search activity and executes approved rehearsal actions for the local Dex AI control plane.",
   permissions: ["storage", "tabs"],
   host_permissions: CONTROL_PLANE_HOST_PERMISSIONS,
+  action: { default_popup: "src/popup/index.html" },
 };
 
 export default defineManifest(({ mode }) => {

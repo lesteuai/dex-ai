@@ -1,0 +1,120 @@
+/* Toolbar popup styles. */
+
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  width: 360px;
+  font-size: 13px;
+  color: #1f2933;
+  background: #f5f7fa;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #52606d;
+}
+
+.panel {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e4e7eb;
+}
+
+.panel:last-child {
+  border-bottom: none;
+}
+
+.hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #52606d;
+}
+
+.field {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.field span {
+  display: block;
+  margin-bottom: 4px;
+  color: #52606d;
+}
+
+input,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #cbd2d9;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: inherit;
+  background: #fff;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  border: 1px solid #9fb3c8;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font: inherit;
+  background: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #f0f4f8;
+}
+
+button.secondary {
+  border-color: #d3dce3;
+  color: #52606d;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+#recording-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ab3000;
+}
+
+#recording-indicator::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d93025;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.status {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #323f4b;
+}
+
+.status.error {
+  color: #c81e1e;
+}

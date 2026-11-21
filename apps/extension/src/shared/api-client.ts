@@ -2,11 +2,14 @@ import {
   postEventsBatchResponseSchema,
   rehearsalDecisionResponseSchema,
   startRehearsalResponseSchema,
+  sttTranscribeResponseSchema,
+  teachingDraftResponseSchema,
   type PostEventsBatchRequest,
   type PostEventsBatchResponse,
   type RehearsalDecisionRequest,
   type RehearsalRecord,
   type StartRehearsalRequest,
+  type TeachingDraft,
 } from "@dex-ai/shared";
 import type { ControlPlaneSettings } from "./auth";
 
@@ -25,18 +28,19 @@ export class ControlPlaneRequestError extends Error {
 }
 
 // AC-2: nothing leaves the extension without the stored local token.
-async function authenticatedPost(
+async function authenticatedRequest(
   settings: ControlPlaneSettings,
   path: string,
-  body: unknown,
+  body: BodyInit,
+  contentType: string,
 ): Promise<unknown> {
   if (!settings.token) {
     throw new ControlPlaneRequestError(401, "No control plane token is stored");
   }
   const response = await fetch(new URL(path, settings.baseUrl).toString(), {
     method: "POST",
-    headers: { authorization: `Bearer ${settings.token}`, "content-type": "application/json" },
-    body: JSON.stringify(body),
+    headers: { authorization: `Bearer ${settings.token}`, "content-type": contentType },
+    body,
   });
   const text = await response.text();
   let parsed: unknown = {};
@@ -58,6 +62,33 @@ async function authenticatedPost(
     throw new ControlPlaneRequestError(response.status, message, fieldErrors);
   }
   return parsed;
+}
+
+/** POST with a JSON body through the authenticated transport. */
+async function authenticatedPost(
+  settings: ControlPlaneSettings,
+  path: string,
+  body: unknown,
+): Promise<unknown> {
+  return authenticatedRequest(settings, path, JSON.stringify(body), "application/json");
+}
+
+/** POST /api/stt/transcribe with a 16 kHz mono 16-bit WAV body. Returns text only. */
+export async function postSttTranscription(
+  settings: ControlPlaneSettings,
+  wav: ArrayBuffer,
+): Promise<string> {
+  const body = await authenticatedRequest(settings, "/api/stt/transcribe", wav, "audio/wav");
+  return sttTranscribeResponseSchema.parse(body).text;
+}
+
+/** POST /api/teaching/drafts to store a typed or voice transcript as a pending draft. */
+export async function createTeachingDraft(
+  settings: ControlPlaneSettings,
+  draft: { source: "text" | "voice"; transcript: string },
+): Promise<TeachingDraft> {
+  const body = await authenticatedPost(settings, "/api/teaching/drafts", draft);
+  return teachingDraftResponseSchema.parse(body).draft;
 }
 
 /** POST /api/events/batches with an authenticated event batch. */

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dex AI</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="popup">
+      <section class="panel" id="connection-panel">
+        <h2>Control plane</h2>
+        <form id="settings-form">
+          <label class="field">
+            <span>Base URL</span>
+            <input id="base-url-input" type="url" placeholder="http://127.0.0.1:8787" required />
+          </label>
+          <label class="field">
+            <span>Local token</span>
+            <input
+              id="token-input"
+              type="password"
+              autocomplete="off"
+              placeholder="Paste the token from the control plane config.json"
+            />
+          </label>
+          <button id="save-settings-button" type="submit">Save settings</button>
+        </form>
+        <p class="status" id="settings-status" hidden></p>
+      </section>
+
+      <section class="panel" id="teaching-panel">
+        <h2>Teach Dex AI</h2>
+        <p class="hint">
+          Voice is transcribed by the local Parakeet model. Audio and transcripts stay on this
+          device and reach no remote recognition service.
+        </p>
+        <textarea
+          id="typed-teaching-input"
+          rows="3"
+          placeholder="Type what Dex AI should learn from this session"
+        ></textarea>
+        <div class="row">
+          <button id="create-draft-button">Create draft</button>
+          <button id="record-button">Record voice</button>
+          <span id="recording-indicator" hidden>Recording</span>
+        </div>
+        <div id="voice-result" hidden>
+          <label class="field">
+            <span>Transcript, edit before confirming</span>
+            <textarea id="transcript-input" rows="3"></textarea>
+          </label>
+          <div class="row">
+            <button id="confirm-transcript-button">Confirm transcript</button>
+            <button id="discard-transcript-button" class="secondary">Discard</button>
+          </div>
+        </div>
+        <p class="status" id="teaching-status" hidden></p>
+      </section>
+
+      <section class="panel" id="rehearsal-panel">
+        <h2>Rehearsal</h2>
+        <p class="hint">
+          Starts a supervised rehearsal for the posting open in this tab. Proposed actions and
+          their reasoning appear in the rehearsal observer.
+        </p>
+        <button id="start-rehearsal-button">Start rehearsal</button>
+        <p class="status" id="rehearsal-status" hidden></p>
+      </section>
+    </main>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>

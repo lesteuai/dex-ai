@@ -3,6 +3,7 @@ import type {
   PostEventsBatchResponse,
   RehearsalRecord,
   SessionDescriptor,
+  TeachingDraft,
 } from "@dex-ai/shared";
 
 /** Pure data fixtures shared by the extension unit tests. */
@@ -53,6 +54,23 @@ export const TEST_REHEARSAL: RehearsalRecord = {
   currentActionId: null,
   startedAt: "2026-11-21T10:02:00.000Z",
 };
+
+export const TEST_DRAFT_ID = "55555555-5555-4555-8555-555555555555";
+
+export const TEST_DRAFT: TeachingDraft = {
+  id: TEST_DRAFT_ID,
+  source: "text",
+  transcript: "Prefer concise cover letters",
+  status: "pending",
+  sessionId: null,
+  createdAt: "2026-11-21T10:03:00.000Z",
+};
+
+/** Control plane response body for POST /api/teaching/drafts. */
+export const draftResponse = (draft: TeachingDraft): { draft: TeachingDraft } => ({ draft });
+
+/** Control plane response body for POST /api/stt/transcribe. */
+export const sttResponse = (text: string): { text: string } => ({ text });
 
 /** Minimal Response-like object for the fetch mock; api-client reads ok, status and text only. */
 export const jsonResponse = (status: number, body: unknown): Response =>

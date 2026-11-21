@@ -20,6 +20,7 @@ describe("shared manifest identity", () => {
         "http://127.0.0.1:8787/*",
         "http://localhost:8787/*",
       ]);
+      expect(output.action).toEqual({ default_popup: "src/popup/index.html" });
       expect(output.description).toMatch(/control plane/);
     }
   });
