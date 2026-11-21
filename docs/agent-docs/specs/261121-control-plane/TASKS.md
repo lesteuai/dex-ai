@@ -172,7 +172,7 @@ Status: in progress
 
 ## Wave 8
 
-- [ ] T23: Build web Playwright suites
+- [x] T23: Build web Playwright suites (commit df045f6)
   - Satisfies: AC-1, AC-2, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-11, AC-13, AC-16, AC-17
   - Files: `tests/e2e/playwright.config.ts`, `tests/e2e/web/control-plane.spec.ts`, `tests/e2e/web/fixture.spec.ts`
   - Do: Configure Chromium and Firefox projects with a temporary `DEX_AI_HOME` and deterministic agent adapter. Exercise startup, token rejection, profile correction, revision trace inspection, timeline live updates, typed teaching, voice draft confirmation, rehearsal pause and correction, restart persistence and privacy disclosure. Assert the fixture never records a submission.
