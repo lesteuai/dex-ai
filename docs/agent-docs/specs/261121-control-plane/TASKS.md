@@ -4,14 +4,14 @@ Status: in progress
 
 ## Wave 1
 
-- [ ] T1: Bootstrap workspace and verification gates
+- [x] T1: Bootstrap workspace and verification gates (commit f657445)
   - Satisfies: AC-1, AC-14, AC-17
   - Files: `package.json`, `tsconfig.base.json`, `tsconfig.json`, `eslint.config.js`, `vitest.config.ts`, `.gitignore`
   - Do: Create Bun workspaces for `apps/*` and `packages/*`. Add root scripts for `dev`, `build`, `typecheck`, `lint`, `test` and `e2e`. Configure TypeScript project references, Node 26 engine, ESLint flat config and Vitest discovery across apps and packages. Keep product code out of this task.
   - Tests: none, this task creates configuration only.
   - Done when: `bun install`, `bun run typecheck`, `bun run lint` and `bun run test` all exit zero with an empty test suite.
 
-- [ ] T2: Define shared envelope and Zod contracts
+- [x] T2: Define shared envelope and Zod contracts (commit 7ee2b25)
   - Satisfies: AC-2, AC-3, AC-7, AC-10, AC-11, AC-12
   - Files: `packages/shared/package.json`, `packages/shared/tsconfig.json`, `packages/shared/src/index.ts`, `packages/shared/src/envelope.ts`, `packages/shared/src/events.ts`, `packages/shared/src/api.ts`, `packages/shared/src/ws.ts`, `packages/shared/src/rehearsal.ts`
   - Do: Define `{ type, id, ts, payload }` envelope, four observed event payloads, REST request and response schemas, WebSocket event union, and rehearsal action schema. The rehearsal action union contains `navigate`, `focus`, `fill`, `click_non_submit`, `scroll` and `wait`, with no submit action. Export inferred TypeScript types.
