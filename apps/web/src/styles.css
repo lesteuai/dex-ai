@@ -1,0 +1,213 @@
+:root {
+  --dex-background: #101418;
+  --dex-surface: #1a2027;
+  --dex-surface-raised: #232b34;
+  --dex-border: #303a45;
+  --dex-text: #e8edf2;
+  --dex-text-muted: #9aa7b4;
+  --dex-accent: #4da3ff;
+  --dex-accent-foreground: #0d1117;
+  --dex-danger: #ff6b6b;
+  --dex-success: #56c271;
+  --dex-warning: #e0b34d;
+  --dex-radius: 8px;
+  --dex-spacing: 12px;
+  --dex-font-sans: system-ui, sans-serif;
+  --dex-font-mono: ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--dex-background);
+  color: var(--dex-text);
+  font-family: var(--dex-font-sans);
+  line-height: 1.5;
+}
+
+code {
+  font-family: var(--dex-font-mono);
+  background: var(--dex-surface-raised);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+button {
+  font: inherit;
+  color: var(--dex-text);
+  background: var(--dex-surface-raised);
+  border: 1px solid var(--dex-border);
+  border-radius: var(--dex-radius);
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--dex-accent);
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* Token gate */
+
+.token-gate {
+  max-width: 460px;
+  margin: 15vh auto 0;
+  padding: calc(var(--dex-spacing) * 2);
+  background: var(--dex-surface);
+  border: 1px solid var(--dex-border);
+  border-radius: var(--dex-radius);
+}
+
+.token-gate h1 {
+  margin: 0 0 var(--dex-spacing);
+  font-size: 1.4rem;
+}
+
+.token-gate-lead {
+  color: var(--dex-text-muted);
+  margin: 0 0 calc(var(--dex-spacing) * 2);
+}
+
+.token-gate-checking {
+  margin: 0;
+  color: var(--dex-text-muted);
+}
+
+.token-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dex-spacing);
+}
+
+.token-gate-form input {
+  font: inherit;
+  font-family: var(--dex-font-mono);
+  color: var(--dex-text);
+  background: var(--dex-background);
+  border: 1px solid var(--dex-border);
+  border-radius: var(--dex-radius);
+  padding: 8px 10px;
+}
+
+.token-gate-form button {
+  background: var(--dex-accent);
+  color: var(--dex-accent-foreground);
+  border-color: var(--dex-accent);
+}
+
+.token-gate-error {
+  color: var(--dex-danger);
+  margin: var(--dex-spacing) 0 0;
+}
+
+/* Shell layout */
+
+.shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--dex-spacing);
+  display: flex;
+  flex-direction: column;
+  gap: var(--dex-spacing);
+}
+
+.shell-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--dex-spacing);
+}
+
+.shell-header h1 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.shell-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--dex-spacing);
+}
+
+.stream-status {
+  font-size: 0.85rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--dex-border);
+  color: var(--dex-text-muted);
+}
+
+.stream-status-open {
+  color: var(--dex-success);
+  border-color: var(--dex-success);
+}
+
+.stream-status-connecting,
+.stream-status-reconnecting {
+  color: var(--dex-warning);
+  border-color: var(--dex-warning);
+}
+
+/* Panel tabs */
+
+.panel-tabs {
+  display: flex;
+  gap: var(--dex-spacing);
+  flex-wrap: wrap;
+}
+
+.panel-tab {
+  background: transparent;
+  border-color: transparent;
+  color: var(--dex-text-muted);
+}
+
+.panel-tab-active {
+  color: var(--dex-text);
+  border-color: var(--dex-accent);
+  background: var(--dex-surface);
+}
+
+.panel-area {
+  background: var(--dex-surface);
+  border: 1px solid var(--dex-border);
+  border-radius: var(--dex-radius);
+  padding: calc(var(--dex-spacing) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--dex-spacing) * 2);
+}
+
+.panel-placeholder {
+  margin: 0;
+  color: var(--dex-text-muted);
+}
+
+/* Privacy disclosure */
+
+.privacy-notice {
+  border-top: 1px solid var(--dex-border);
+  padding-top: calc(var(--dex-spacing) * 2);
+}
+
+.privacy-notice h2 {
+  margin: 0 0 var(--dex-spacing);
+  font-size: 1rem;
+}
+
+.privacy-notice ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--dex-text-muted);
+}
+
+.privacy-notice li + li {
+  margin-top: 4px;
+}
