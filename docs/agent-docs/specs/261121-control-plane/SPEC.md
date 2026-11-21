@@ -1,6 +1,6 @@
 # Spec: Control plane first milestone
 
-Status: approved
+Status: implemented
 Request: $sdd let's start with the control plane first
 Follow-up request: add make extensions for both firefox and chrome. For voice, use a local model like parakeet
 

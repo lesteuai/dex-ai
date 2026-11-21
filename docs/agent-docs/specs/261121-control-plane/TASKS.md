@@ -1,6 +1,6 @@
 # Tasks: Control plane first milestone
 
-Status: in progress
+Status: complete
 
 ## Wave 1
 
