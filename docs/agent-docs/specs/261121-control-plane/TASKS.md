@@ -117,7 +117,7 @@ Status: in progress
   - Tests: Both manifest outputs, token persistence, batch retry and dedupe behavior, WebSocket reconnect, active-tab message routing, no cross-origin request without token.
   - Done when: Both extension builds succeed and coordinator unit tests pass.
 
-- [ ] T16: Implement correction propagation and fixture evaluation
+- [x] T16: Implement correction propagation and fixture evaluation (commit f70f84f)
   - Satisfies: AC-13, AC-14, AC-15
   - Files: `apps/control-plane/src/services/correction-propagation.ts`, `apps/control-plane/src/services/evaluation.ts`, `apps/control-plane/src/routes/evaluations.ts`, `apps/control-plane/fixtures/job-site/expected-session.json`
   - Do: Read contributing rule IDs from trace output, write a linked revision for each affected rule, make updated rules part of future prompts, and run a repeatable held-out fixture evaluation that reports `errors_unchanged`, `errors_corrected` and `errors_new`. Define expected navigation and field values in the fixture file.
