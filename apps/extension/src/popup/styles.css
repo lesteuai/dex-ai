@@ -118,3 +118,9 @@ button.secondary {
 .status.error {
   color: #c81e1e;
 }
+
+.match-reasons {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+}

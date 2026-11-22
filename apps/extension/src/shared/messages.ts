@@ -112,3 +112,11 @@ export interface RehearsalPausedMessage {
 }
 
 export type TabMessage = ExecuteRehearsalActionMessage | RehearsalPausedMessage;
+
+// The popup asks the active tab for its visible text to score a job match.
+export const READ_POSTING_MESSAGE_TYPE = "dex-ai:read-posting";
+
+export interface PostingText {
+  title: string;
+  text: string;
+}
