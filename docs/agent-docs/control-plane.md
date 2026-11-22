@@ -19,7 +19,9 @@ For web UI development with hot reload, run the Vite dev server next to the cont
 The config field `agentKind` selects the agent adapter (`apps/control-plane/src/agent/factory.ts`):
 
 - `"opencode"` (default): real `@opencode/sdk` 2.3.2 work through the user's configured OpenCode provider. Automated tests never use this.
-- `"deterministic"`: scripted adapter for automated runs and E2E suites.
+- `"deterministic"`: scripted adapter for automated runs and E2E suites. On a live session (no fixture event ids) profile inference derives a rule-based profile from the session's own events (`apps/control-plane/src/agent/deterministic-profile.ts`), so the UI shows cited entries without a provider.
+
+The optional field `opencodeModel` (`provider/model`, as `opencode models` prints it) picks the model for every agent session; unset uses the OpenCode default. OpenCode's free `opencode/*-free` models answer `Free usage limit reached` through the SDK on the first call (verified 22 November 2026; the error says free models work only in the OpenCode app), so live runs need a connected provider such as Claude, ChatGPT, or OpenCode Go.
 
 For a throwaway environment, set `DEX_AI_HOME` before starting: `DEX_AI_HOME=/tmp/opencode/smoke bun run --filter '@dex-ai/control-plane' dev`.
 
@@ -34,7 +36,7 @@ For a throwaway environment, set `DEX_AI_HOME` before starting: `DEX_AI_HOME=/tm
 | SQLite | `<dataDir>/control-plane.sqlite` | same rule |
 | Parakeet model | `<dataDir>/models/parakeet-tdt-0.6b-v3-int8` | same rule |
 
-First run creates the config with a random token, written with mode `0600`. Config fields: `host` (127.0.0.1), `port` (8787), `token`, `dataDir`, `extensionOrigins`, `localUiOrigin`, `lowConfidenceThreshold` (default 0.7), `parakeetModelPath`, and `agentKind`. The SQLite database runs in WAL mode with foreign keys on (`apps/control-plane/src/db/client.ts`).
+First run creates the config with a random token, written with mode `0600`. Config fields: `host` (127.0.0.1), `port` (8787), `token`, `dataDir`, `extensionOrigins`, `localUiOrigin`, `lowConfidenceThreshold` (default 0.7), `parakeetModelPath`, `agentKind`, and the optional `opencodeModel`. The SQLite database runs in WAL mode with foreign keys on (`apps/control-plane/src/db/client.ts`).
 
 ## The four web panels
 

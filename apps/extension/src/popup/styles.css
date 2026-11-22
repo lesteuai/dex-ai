@@ -119,6 +119,9 @@ button.secondary {
   color: #c81e1e;
 }
 
+.match-reasons {
+  margin: 8px 0 0;
+  padding-left: 18px;
 .checkbox-field {
   display: flex;
   align-items: flex-start;

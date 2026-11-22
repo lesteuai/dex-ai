@@ -27,7 +27,13 @@ describe("PrivacyNotice", () => {
   it("discloses that voice audio is sent to no provider", () => {
     render(<PrivacyNotice />);
 
-    expect(screen.getByText(/Voice audio and transcripts never leave this device/)).toBeTruthy();
+    expect(screen.getByText(/Voice audio never leaves this device/)).toBeTruthy();
+  });
+
+  it("discloses that prompts carry the user's observed values", () => {
+    render(<PrivacyNotice />);
+
+    expect(screen.getByText(/observed events with the values you typed/)).toBeTruthy();
   });
 
   it("discloses that Dex AI stores no API keys and runs no remote storage service", () => {

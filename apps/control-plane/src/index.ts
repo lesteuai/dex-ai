@@ -28,7 +28,7 @@ export async function startControlPlane(config: ControlPlaneConfig): Promise<Con
   const agentHost = createAgentAdapter(
     config.agentKind === "deterministic"
       ? { kind: "deterministic" }
-      : { kind: "opencode", dataDir: config.dataDir },
+      : { kind: "opencode", dataDir: config.dataDir, model: config.opencodeModel },
   );
   const app = createControlPlaneApp(config, hub, db, database, agentHost);
   // noServer mode: @hono/node-server drives upgrades through serve().

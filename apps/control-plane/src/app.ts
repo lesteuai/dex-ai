@@ -22,6 +22,7 @@ import { createEventsRoute } from "./routes/events";
 import { createHealthRoute } from "./routes/health";
 import { createProfileRoute } from "./routes/profile";
 import { createRehearsalsRoute } from "./routes/rehearsals";
+import { createMatchRoute } from "./routes/match";
 import { createRevisionsRoute } from "./routes/revisions";
 import { createRulesRoute } from "./routes/rules";
 import { createSessionsRoute } from "./routes/sessions";
@@ -100,6 +101,7 @@ export function createControlPlaneApp(
   api.route("/profile", createProfileRoute({ database, db, adapter, hub }));
   api.route("/rules", createRulesRoute({ database, db, hub }));
   api.route("/revisions", createRevisionsRoute({ db }));
+  api.route("/match", createMatchRoute({ db }));
   api.route("/teaching", createTeachingRoute({ database, db, hub, adapter }));
   api.route("/stt", createSttRoute(config));
   api.route(

@@ -1,10 +1,13 @@
 import {
+  jobMatchResponseSchema,
   type AutonomyAssessment,
   postEventsBatchResponseSchema,
   rehearsalDecisionResponseSchema,
   startRehearsalResponseSchema,
   sttTranscribeResponseSchema,
   teachingDraftResponseSchema,
+  type JobMatchRequest,
+  type JobMatchResponse,
   type PostEventsBatchRequest,
   type PostEventsBatchResponse,
   type RehearsalDecisionRequest,
@@ -131,4 +134,13 @@ export async function postBlockedAttempt(
   attempt: BlockedAttempt,
 ): Promise<void> {
   await authenticatedPost(settings, `/api/rehearsals/${rehearsalId}/blocked-attempts`, attempt);
+}
+
+/** POST /api/match to score the open posting against the learned profile. */
+export async function postJobMatch(
+  settings: ControlPlaneSettings,
+  request: JobMatchRequest,
+): Promise<JobMatchResponse> {
+  const body = await authenticatedPost(settings, "/api/match", request);
+  return jobMatchResponseSchema.parse(body);
 }

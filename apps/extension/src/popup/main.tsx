@@ -2,15 +2,19 @@ import browser from "webextension-polyfill";
 import {
   ControlPlaneRequestError,
   createTeachingDraft,
+  postJobMatch,
   postSttTranscription,
 } from "../shared/api-client";
+import type { JobMatchResponse } from "@dex-ai/shared";
 import type { ControlPlaneSettings } from "../shared/auth";
 import type {
   CoordinatorResponse,
   ExtensionMessage,
+  PostingText,
   SaveSettingsResponse,
   StartRehearsalResponse,
 } from "../shared/messages";
+import { READ_POSTING_MESSAGE_TYPE } from "../shared/messages";
 import { VoiceRecorder, VoiceRecorderError } from "../shared/recorder";
 
 /**
@@ -41,6 +45,9 @@ const discardTranscriptButton = getElement<HTMLButtonElement>("discard-transcrip
 const teachingStatus = getElement<HTMLElement>("teaching-status");
 const startRehearsalButton = getElement<HTMLButtonElement>("start-rehearsal-button");
 const rehearsalStatus = getElement<HTMLElement>("rehearsal-status");
+const checkMatchButton = getElement<HTMLButtonElement>("check-match-button");
+const matchStatus = getElement<HTMLElement>("match-status");
+const matchReasons = getElement<HTMLUListElement>("match-reasons");
 const autoModeInput = getElement<HTMLInputElement>("auto-mode-input");
 
 function showStatus(element: HTMLElement, text: string, tone: "info" | "error" = "info"): void {
@@ -237,6 +244,44 @@ async function handleStartRehearsalClick(): Promise<void> {
   );
 }
 
+// Job match for the posting open in the current tab.
+
+function renderMatchReasons(result: JobMatchResponse): void {
+  const lines = [
+    ...result.matched.map((signal) => `Matches ${signal.key}: ${signal.terms.join(", ")}`),
+    ...result.missed.map((signal) => `Missing ${signal.key}: ${signal.terms.join(", ")}`),
+  ];
+  matchReasons.replaceChildren(
+    ...lines.map((line) => {
+      const item = document.createElement("li");
+      item.textContent = line;
+      return item;
+    }),
+  );
+  matchReasons.hidden = lines.length === 0;
+}
+
+async function handleCheckMatchClick(): Promise<void> {
+  const settings = await getSettings();
+  if (!requireToken(settings, matchStatus)) return;
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+  if (tab?.id === undefined) {
+    showStatus(matchStatus, "No active tab to score", "error");
+    return;
+  }
+  try {
+    const posting = (await browser.tabs.sendMessage(tab.id, { type: READ_POSTING_MESSAGE_TYPE })) as PostingText;
+    const result = await postJobMatch(settings, posting);
+    const summary = result.score === null
+      ? "No preferences or criteria learned yet. Observe sessions and run inference first."
+      : `Match ${result.score}% (${result.matched.length} of ${result.matched.length + result.missed.length} signals)`;
+    showStatus(matchStatus, summary);
+    renderMatchReasons(result);
+  } catch (error) {
+    showStatus(matchStatus, requestFailureText(error), "error");
+  }
+}
+
 settingsForm.addEventListener("submit", (event) => {
   void handleSettingsSubmit(event);
 });
@@ -250,6 +295,9 @@ confirmTranscriptButton.addEventListener("click", () => {
   void handleConfirmTranscriptClick();
 });
 discardTranscriptButton.addEventListener("click", resetTranscriptReview);
+checkMatchButton.addEventListener("click", () => {
+  void handleCheckMatchClick();
+});
 startRehearsalButton.addEventListener("click", () => {
   void handleStartRehearsalClick();
 });

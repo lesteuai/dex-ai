@@ -27,6 +27,8 @@ export const configSchema = z.object({
   parakeetModelPath: z.string().min(1),
   // Optional so config files written before this field existed still load.
   agentKind: agentKindSchema.optional(),
+  // "provider/model" as `opencode models` prints it; omitted uses the OpenCode default.
+  opencodeModel: z.string().regex(/^[^/]+\/.+$/, "expected provider/model").optional(),
   // Completed rehearsals needed on a platform and role type before auto mode skips pauses.
   autonomyThreshold: z.number().int().min(1).optional(),
 });

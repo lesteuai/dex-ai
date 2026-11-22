@@ -133,6 +133,14 @@ describe("agent kind parsing", () => {
     expect(loadOrCreateConfig().agentKind).toBeUndefined();
   });
 
+  it("accepts an opencodeModel and rejects one without a provider", () => {
+    writeConfigFile({ opencodeModel: "opencode/big-pickle" });
+    expect(loadOrCreateConfig().opencodeModel).toBe("opencode/big-pickle");
+
+    writeConfigFile({ opencodeModel: "big-pickle" });
+    expect(() => loadOrCreateConfig()).toThrow(/opencodeModel/);
+  });
+
   it.each(["claude", "codex", "auto", 1])("rejects an unsupported agentKind %s", (agentKind) => {
     writeConfigFile({ agentKind });
 

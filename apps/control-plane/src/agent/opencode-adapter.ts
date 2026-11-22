@@ -34,7 +34,19 @@ const DEFAULT_LOG_LEVEL: OpenCode.LogLevel = "warn";
 
 export interface OpenCodeAgentAdapterOptions {
   dataDir: string;
+  /** "provider/model", for example "opencode/big-pickle". */
+  model?: string;
   log?: OpenCode.LogOptions;
+}
+
+interface OpenCodeModelRef {
+  providerID: string;
+  id: string;
+}
+
+function parseModelRef(model: string): OpenCodeModelRef {
+  const slash = model.indexOf("/");
+  return { providerID: model.slice(0, slash), id: model.slice(slash + 1) };
 }
 
 /** One task tracked from start() to its terminal event. */
@@ -74,6 +86,7 @@ export class OpenCodeAgentAdapter implements AgentAdapter {
   private readonly workspaceDir: string;
   private readonly databasePath: string;
   private readonly log: OpenCode.LogOptions;
+  private readonly model?: OpenCodeModelRef;
   private hostPromise?: Promise<OpenCodeHost>;
   private closed = false;
   private readonly activeTasks = new Map<string, ActiveOpenCodeTask>();
@@ -85,6 +98,7 @@ export class OpenCodeAgentAdapter implements AgentAdapter {
     // OpenCode refuses sessions in a directory that does not exist yet.
     mkdirSync(this.workspaceDir, { recursive: true });
     this.log = options.log ?? { level: DEFAULT_LOG_LEVEL, emit: defaultLogEmit };
+    this.model = options.model ? parseModelRef(options.model) : undefined;
   }
 
   start(input: AgentStartInput): AsyncIterable<AgentEvent> {
@@ -244,6 +258,7 @@ export class OpenCodeAgentAdapter implements AgentAdapter {
       const session = await host.sessions.create({
         location: { directory: this.workspaceDir },
         title: `Dex AI ${input.kind}`,
+        model: this.model,
       });
       active.sessionID = session.id;
 
