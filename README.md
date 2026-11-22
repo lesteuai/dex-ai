@@ -63,7 +63,7 @@ Then open the extension popup, paste the control plane token, and save. A `403` 
 
 ### Optional: voice input
 
-Voice teaching uses the Parakeet TDT v3 int8 model, transcribed on your device by `sherpa-onnx-node`. Download the model into the data directory:
+Voice teaching uses the Parakeet TDT v3 int8 model, transcribed on your device by `sherpa-onnx-node`. Run `bun run setup:voice` (about 640 MB, safe to rerun) or download the model into the data directory yourself:
 
 ```
 ~/.local/share/dex-ai/models/parakeet-tdt-0.6b-v3-int8/
