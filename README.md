@@ -81,6 +81,8 @@ The web UI has four panels.
 - **Teaching Console:** typed teaching input, plus voice transcripts that you confirm before they become teaching events.
 - **Rehearsal Observer:** start a rehearsal for the posting open in the extension, watch each proposed action with its reasoning and confidence, approve or correct actions that fall below the confidence threshold, and see blocked submission attempts.
 
+**Job match:** the extension popup's "Check match" button scores the posting in the current tab against your learned preferences, criteria and job sources (`POST /api/match`), and lists which ones matched and which are missing. It runs locally without an LLM.
+
 A typical flow: apply for jobs normally while the extension records, open the Session Timeline to see what was captured, run inference from Profile & Rules, correct what it got wrong, then start a rehearsal from Rehearsal Observer to watch it attempt a posting under your supervision. Rehearsals pause on low confidence (configurable, default `0.7`) and block all submissions.
 
 ## Configuration
