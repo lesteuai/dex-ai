@@ -259,4 +259,15 @@ textarea {
 .rehearsal-start select,
 .rehearsal-start input[type="text"] {
   width: 100%;
+.rehearsal-start .rehearsal-auto-mode {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--dex-text-muted);
+}
+
+.rehearsal-autonomy {
+  margin: 0;
+  color: var(--dex-text-muted);
 }

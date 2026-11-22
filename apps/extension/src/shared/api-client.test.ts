@@ -83,7 +83,7 @@ describe("authenticated requests", () => {
   it("starts a rehearsal and parses the record", async () => {
     fetchMock.mockResolvedValue(jsonResponse(200, { rehearsal: TEST_REHEARSAL }));
 
-    const rehearsal = await startRehearsal(settings("token-123"), {
+    const { rehearsal } = await startRehearsal(settings("token-123"), {
       sessionId: TEST_SESSION.id,
       postingUrl: TEST_SESSION.postingUrl,
     });

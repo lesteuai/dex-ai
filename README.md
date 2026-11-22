@@ -82,6 +82,7 @@ The web UI has four panels.
 - **Rehearsal Observer:** start a rehearsal for the posting open in the extension, watch each proposed action with its reasoning and confidence, approve or correct actions that fall below the confidence threshold, and see blocked submission attempts.
 
 **Job match:** the extension popup's "Check match" button scores the posting in the current tab against your learned preferences, criteria and job sources (`POST /api/match`), and lists which ones matched and which are missing. It runs locally without an LLM.
+**Auto mode:** tick "Auto mode" when starting a rehearsal (web observer or extension popup). If the posting's platform (url host) and role type (posting title without the company) have each appeared in `autonomyThreshold` completed rehearsals, the rehearsal runs with no confidence pauses. A new platform or role type keeps the normal pause-and-ask behavior, and a new company alone counts as familiar. Submission stays blocked in every mode, so the final submit is always yours.
 
 A typical flow: apply for jobs normally while the extension records, open the Session Timeline to see what was captured, run inference from Profile & Rules, correct what it got wrong, then start a rehearsal from Rehearsal Observer to watch it attempt a posting under your supervision. Rehearsals pause on low confidence (configurable, default `0.7`) and block all submissions.
 
@@ -97,6 +98,7 @@ A typical flow: apply for jobs normally while the extension records, open the Se
 | `extensionOrigins` | `[]` | Allowed `chrome-extension://` or `moz-extension://` origins |
 | `agentKind` | `"opencode"` | `"opencode"` for real LLM work, `"deterministic"` for automated runs |
 | `opencodeModel` | unset | `provider/model` from `opencode models`, such as `anthropic/claude-sonnet-5-5`; unset uses the OpenCode default |
+| `autonomyThreshold` | `3` | Completed rehearsals needed on a platform and on a role type before auto mode stops pausing |
 | `lowConfidenceThreshold` | `0.7` | Rehearsal actions below this confidence pause for approval |
 | `parakeetModelPath` | `<dataDir>/models/parakeet-tdt-0.6b-v3-int8` | Local STT model directory |
 

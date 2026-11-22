@@ -217,10 +217,24 @@ export const sttTranscribeResponseSchema = z.strictObject({ text: z.string() });
 
 // Rehearsals.
 
+export const rehearsalModeSchema = z.enum(["supervised", "auto"]);
+
 export const startRehearsalRequestSchema = z.strictObject({
   sessionId: envelopeIdSchema,
   postingUrl: webUrlSchema.optional(),
   confidenceThreshold: confidenceSchema.optional(),
+  // "auto" skips confidence pauses once the platform and role type are familiar.
+  mode: rehearsalModeSchema.optional(),
+});
+
+export const autonomyAssessmentSchema = z.strictObject({
+  autonomous: z.boolean(),
+  requiredCount: z.number().int().min(1),
+  platform: z.string(),
+  platformCount: z.number().int().min(0),
+  roleType: z.string().nullable(),
+  roleCount: z.number().int().min(0),
+  reason: z.string(),
 });
 
 export const rehearsalRecordSchema = z.strictObject({
@@ -246,7 +260,10 @@ export const rehearsalDecisionRequestSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("resume") }),
 ]);
 
-export const startRehearsalResponseSchema = z.strictObject({ rehearsal: rehearsalRecordSchema });
+export const startRehearsalResponseSchema = z.strictObject({
+  rehearsal: rehearsalRecordSchema,
+  autonomy: autonomyAssessmentSchema.optional(),
+});
 export const getRehearsalResponseSchema = z.strictObject({
   rehearsal: rehearsalRecordSchema,
   actions: z.array(rehearsalActionRecordSchema),
@@ -282,6 +299,7 @@ export type Rule = z.infer<typeof ruleSchema>;
 export type TeachingDraft = z.infer<typeof teachingDraftSchema>;
 export type ApplyTeachingRequest = z.infer<typeof applyTeachingRequestSchema>;
 export type StartRehearsalRequest = z.infer<typeof startRehearsalRequestSchema>;
+export type AutonomyAssessment = z.infer<typeof autonomyAssessmentSchema>;
 export type RehearsalRecord = z.infer<typeof rehearsalRecordSchema>;
 export type RehearsalDecisionRequest = z.infer<typeof rehearsalDecisionRequestSchema>;
 export type EvaluationRecord = z.infer<typeof evaluationRecordSchema>;

@@ -1,4 +1,5 @@
 import type {
+  AutonomyAssessment,
   ObservedEventEnvelope,
   RehearsalAction,
   RehearsalRecord,
@@ -46,6 +47,7 @@ export interface ObservedEventsMessage {
 export interface StartRehearsalMessage {
   type: "dex-ai:start-rehearsal";
   postingUrl?: string;
+  autoMode?: boolean;
 }
 
 /** A submit the content guard refused; the coordinator forwards it to the control plane. */
@@ -82,7 +84,7 @@ export type SaveSettingsResponse = { ok: true } | { ok: false; error: string };
 export type QueuedEventsResponse = { ok: true; queued: number } | { ok: false; error: string };
 
 export type StartRehearsalResponse =
-  | { ok: true; rehearsal: RehearsalRecord }
+  | { ok: true; rehearsal: RehearsalRecord; autonomy?: AutonomyAssessment }
   | { ok: false; error: string };
 
 export type BlockedAttemptResponse = { ok: true } | { ok: false; error: string };

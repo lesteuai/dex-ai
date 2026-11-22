@@ -296,4 +296,29 @@ describe("RehearsalObserver", () => {
     );
     expect(post).toHaveBeenCalledTimes(2);
   });
+
+  it("sends auto mode and shows why the agent asks first", async () => {
+    const { client, post } = createMockClient({ rehearsal: makeRehearsal(), actions: [] });
+    post.mockImplementationOnce(async () => ({
+      rehearsal: makeRehearsal(),
+      autonomy: { autonomous: false, reason: "New platform: 1 of 3 completed rehearsals on jobs.example." },
+    }));
+    renderObserver(client);
+    const start = (await screen.findByRole("button", { name: "Start rehearsal" })) as HTMLButtonElement;
+    await waitFor(() => expect(start.disabled).toBe(false));
+
+    fireEvent.click(screen.getByLabelText(/Auto mode/));
+    fireEvent.click(start);
+
+    await waitFor(() =>
+      expect(post).toHaveBeenCalledWith("/rehearsals", {
+        sessionId: SESSION_ID,
+        mode: "auto",
+        postingUrl: POSTING_URL,
+      }),
+    );
+    expect(
+      (await screen.findByRole("status")).textContent,
+    ).toBe("Auto mode asks first. New platform: 1 of 3 completed rehearsals on jobs.example.");
+  });
 });

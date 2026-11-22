@@ -48,6 +48,7 @@ const rehearsalStatus = getElement<HTMLElement>("rehearsal-status");
 const checkMatchButton = getElement<HTMLButtonElement>("check-match-button");
 const matchStatus = getElement<HTMLElement>("match-status");
 const matchReasons = getElement<HTMLUListElement>("match-reasons");
+const autoModeInput = getElement<HTMLInputElement>("auto-mode-input");
 
 function showStatus(element: HTMLElement, text: string, tone: "info" | "error" = "info"): void {
   element.textContent = text;
@@ -229,15 +230,17 @@ async function handleStartRehearsalClick(): Promise<void> {
   const response = (await requestCoordinator({
     type: "dex-ai:start-rehearsal",
     postingUrl,
+    autoMode: autoModeInput.checked,
   })) as StartRehearsalResponse;
   if (!response.ok) {
     showStatus(rehearsalStatus, response.error, "error");
     return;
   }
   const rehearsal = response.rehearsal;
+  const autonomyLine = response.autonomy === undefined ? "" : ` ${response.autonomy.reason}`;
   showStatus(
     rehearsalStatus,
-    `Rehearsal ${rehearsal.id.slice(0, 8)} is ${rehearsal.status}. Watch proposed actions in the rehearsal observer.`,
+    `Rehearsal ${rehearsal.id.slice(0, 8)} is ${rehearsal.status}.${autonomyLine} Watch proposed actions in the rehearsal observer.`,
   );
 }
 

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type {
+  AutonomyAssessment,
   RehearsalAction,
   RehearsalActionRecord,
   RehearsalDecisionRequest,
@@ -398,29 +399,38 @@ function ActiveRehearsal({ client, rehearsalId }: { client: ApiClient; rehearsal
   );
 }
 
-type StartInput = { sessionId: string; postingUrl: string; confidenceThreshold?: number };
+function autonomyText(autonomy: AutonomyAssessment): string {
+  const prefix = autonomy.autonomous ? "Auto mode active." : "Auto mode asks first.";
+  return `${prefix} ${autonomy.reason}`;
+}
+
+type StartInput = { sessionId: string; postingUrl: string; confidenceThreshold?: number; autoMode: boolean };
 
 function StartRehearsalForm({
   sessions,
   sessionId,
   postingUrl,
   threshold,
+  autoMode,
   startError,
   starting,
   onSessionChange,
   onPostingUrlChange,
   onThresholdChange,
+  onAutoModeChange,
   onStart,
 }: {
   sessions: SessionSummary[];
   sessionId: string;
   postingUrl: string;
   threshold: string;
+  autoMode: boolean;
   startError: string | null;
   starting: boolean;
   onSessionChange: (sessionId: string) => void;
   onPostingUrlChange: (postingUrl: string) => void;
   onThresholdChange: (threshold: string) => void;
+  onAutoModeChange: (autoMode: boolean) => void;
   onStart: () => void;
 }) {
   if (sessions.length === 0) {
@@ -458,6 +468,15 @@ function StartRehearsalForm({
           onChange={(event) => onThresholdChange(event.target.value)}
         />
       </label>
+      <label className="rehearsal-auto-mode">
+        <input
+          type="checkbox"
+          checked={autoMode}
+          onChange={(event) => onAutoModeChange(event.target.checked)}
+        />
+        Auto mode: skip confidence pauses once this platform and role type are familiar. Submission
+        stays blocked.
+      </label>
       <button type="button" disabled={starting || sessionId === ""} onClick={onStart}>
         Start rehearsal
       </button>
@@ -485,6 +504,8 @@ export function RehearsalObserver({ client }: { client: ApiClient }) {
   const [sessionId, setSessionId] = useState("");
   const [postingUrl, setPostingUrl] = useState("");
   const [threshold, setThreshold] = useState("");
+  const [autoMode, setAutoMode] = useState(false);
+  const [autonomyNote, setAutonomyNote] = useState<string | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
   const [activeRehearsalId, setActiveRehearsalId] = useState<string | null>(null);
 
@@ -506,13 +527,15 @@ export function RehearsalObserver({ client }: { client: ApiClient }) {
 
   const startMutation = useMutation({
     mutationFn: (input: StartInput) =>
-      client.post<{ rehearsal: RehearsalRecord }>("/rehearsals", {
+      client.post<{ rehearsal: RehearsalRecord; autonomy?: AutonomyAssessment }>("/rehearsals", {
         sessionId: input.sessionId,
+        ...(input.autoMode ? { mode: "auto" } : {}),
         ...(input.postingUrl.trim() === "" ? {} : { postingUrl: input.postingUrl.trim() }),
         ...(input.confidenceThreshold === undefined ? {} : { confidenceThreshold: input.confidenceThreshold }),
       }),
     onSuccess: async (data) => {
       setStartError(null);
+      setAutonomyNote(data.autonomy === undefined ? null : autonomyText(data.autonomy));
       setActiveRehearsalId(data.rehearsal.id);
       await queryClient.invalidateQueries({ queryKey: queryKeys.rehearsals });
     },
@@ -527,10 +550,10 @@ export function RehearsalObserver({ client }: { client: ApiClient }) {
         setStartError("The confidence threshold must be a number between 0 and 1");
         return;
       }
-      startMutation.mutate({ sessionId, postingUrl, confidenceThreshold: value });
+      startMutation.mutate({ sessionId, postingUrl, confidenceThreshold: value, autoMode });
       return;
     }
-    startMutation.mutate({ sessionId, postingUrl });
+    startMutation.mutate({ sessionId, postingUrl, autoMode });
   }
 
   const sessions = sessionsQuery.data?.sessions ?? [];
@@ -547,13 +570,20 @@ export function RehearsalObserver({ client }: { client: ApiClient }) {
         sessionId={sessionId}
         postingUrl={postingUrl}
         threshold={threshold}
+        autoMode={autoMode}
         startError={startError}
         starting={startMutation.isPending}
         onSessionChange={handleSessionChange}
         onPostingUrlChange={setPostingUrl}
         onThresholdChange={setThreshold}
+        onAutoModeChange={setAutoMode}
         onStart={handleStart}
       />
+      {autonomyNote !== null && (
+        <p className="rehearsal-autonomy" role="status">
+          {autonomyNote}
+        </p>
+      )}
       {activeRehearsalId !== null && (
         <ActiveRehearsal client={client} rehearsalId={activeRehearsalId} />
       )}
