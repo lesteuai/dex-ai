@@ -19,7 +19,7 @@ For web UI development with hot reload, run the Vite dev server next to the cont
 The config field `agentKind` selects the agent adapter (`apps/control-plane/src/agent/factory.ts`):
 
 - `"opencode"` (default): real `@opencode/sdk` 2.3.2 work through the user's configured OpenCode provider. Automated tests never use this.
-- `"deterministic"`: scripted adapter for automated runs and E2E suites.
+- `"deterministic"`: scripted adapter for automated runs and E2E suites. On a live session (no fixture event ids) profile inference derives a rule-based profile from the session's own events (`apps/control-plane/src/agent/deterministic-profile.ts`), so the UI shows cited entries without a provider.
 
 For a throwaway environment, set `DEX_AI_HOME` before starting: `DEX_AI_HOME=/tmp/opencode/smoke bun run --filter '@dex-ai/control-plane' dev`.
 
