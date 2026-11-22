@@ -19,7 +19,7 @@ For web UI development with hot reload, run the Vite dev server next to the cont
 The config field `agentKind` selects the agent adapter (`apps/control-plane/src/agent/factory.ts`):
 
 - `"opencode"` (default): real `@opencode/sdk` 2.3.2 work through the user's configured OpenCode provider. Automated tests never use this.
-- `"deterministic"`: scripted adapter for automated runs and E2E suites.
+- `"deterministic"`: scripted adapter for automated runs and E2E suites. On a live session (no fixture event ids) profile inference derives a rule-based profile from the session's own events (`apps/control-plane/src/agent/deterministic-profile.ts`), so the UI shows cited entries without a provider.
 
 The optional field `opencodeModel` (`provider/model`, as `opencode models` prints it) picks the model for every agent session; unset uses the OpenCode default. OpenCode's free `opencode/*-free` models answer `Free usage limit reached` through the SDK on the first call (verified 22 November 2026; the error says free models work only in the OpenCode app), so live runs need a connected provider such as Claude, ChatGPT, or OpenCode Go.
 

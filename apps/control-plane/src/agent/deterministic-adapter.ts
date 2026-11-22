@@ -1,4 +1,5 @@
 import type { AgentAdapter, AgentEvent, AgentResultSchemaName, AgentStartInput } from "./adapter";
+import { deriveProfileFromEvents, readPromptEvents } from "./deterministic-profile";
 import { parseAgentResult } from "./results";
 
 /** One scripted run: reasoning lines, then a validated result, or a failure. */
@@ -6,6 +7,8 @@ export interface ScriptedAgentFixture {
   reasoning: string[];
   result: unknown;
   failWith?: string;
+  /** Replaces reasoning and result per task, for fixtures that read the prompt. */
+  resolve?: (input: AgentStartInput) => Pick<ScriptedAgentFixture, "reasoning" | "result">;
 }
 
 export type ScriptedAgentFixtures = Readonly<
@@ -28,66 +31,87 @@ const EMAIL_FIELD_EVENT_ID = fixtureEventIds.emailField;
 const COVER_LETTER_REASON_EVENT_ID = fixtureEventIds.coverLetterReason;
 const EMAIL_FILL_RULE_ID = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
 
+const FIXTURE_EVENT_ID_SET = new Set<string>(Object.values(fixtureEventIds));
+
+/** Fixture sessions keep the scripted profile; live sessions get one derived from their events. */
+function resolveProfileScript(input: AgentStartInput, scripted: ScriptedAgentFixture) {
+  const events = readPromptEvents(input.prompt);
+  const isFixtureSession = events.some((event) => FIXTURE_EVENT_ID_SET.has(event.id));
+  if (events.length === 0 || isFixtureSession) return scripted;
+  return {
+    reasoning: [
+      `Derived a rule-based profile from ${events.length} observed events without an LLM.`,
+      "Typed field values become user facts, searches become job sources, stated reasons become preferences.",
+    ],
+    result: deriveProfileFromEvents(events),
+  };
+}
+
+const scriptedProfileFixture: ScriptedAgentFixture = {
+  reasoning: [
+    "Observed one search and three field_filled events on the local fixture application form.",
+    "The full name field repeats one value across two events, so it is a user fact.",
+    "No reason_stated event mentions salary or team criteria, so the criteria section stays empty.",
+  ],
+  result: {
+    sections: [
+      {
+        section: "user_facts",
+        entries: [
+          {
+            key: "full_name",
+            value: "Jordan Lee",
+            confidence: 0.9,
+            sourceEventIds: [NAME_FIELD_EVENT_ID, SECOND_NAME_FIELD_EVENT_ID],
+            reasoningTrace: "The same full name was typed into the name field on two fixture applications.",
+          },
+        ],
+      },
+      {
+        section: "job_sources",
+        entries: [
+          {
+            key: "fixture_board",
+            value: "local fixture job site",
+            confidence: 0.8,
+            sourceEventIds: [SEARCH_EVENT_ID],
+            reasoningTrace: "The only search in this session ran against the local fixture job site.",
+          },
+        ],
+      },
+      {
+        section: "preferences",
+        entries: [
+          {
+            key: "cover_letter",
+            value: "reuse the stored paragraph",
+            confidence: 0.75,
+            sourceEventIds: [COVER_LETTER_REASON_EVENT_ID],
+            reasoningTrace: "The stated reason says to reuse one stored cover letter paragraph.",
+          },
+        ],
+      },
+      { section: "criteria", entries: [] },
+      {
+        section: "form_rules",
+        entries: [
+          {
+            key: "email_field",
+            value: "fill with the stored email address",
+            confidence: 0.8,
+            sourceEventIds: [EMAIL_FIELD_EVENT_ID],
+            reasoningTrace: "The email field was filled with one address every time it appeared.",
+          },
+        ],
+      },
+    ],
+  },
+};
+
 export const defaultScriptedFixtures: ScriptedAgentFixtures = {
   profile: {
-    reasoning: [
-      "Observed one search and three field_filled events on the local fixture application form.",
-      "The full name field repeats one value across two events, so it is a user fact.",
-      "No reason_stated event mentions salary or team criteria, so the criteria section stays empty.",
-    ],
-    result: {
-      sections: [
-        {
-          section: "user_facts",
-          entries: [
-            {
-              key: "full_name",
-              value: "Jordan Lee",
-              confidence: 0.9,
-              sourceEventIds: [NAME_FIELD_EVENT_ID, SECOND_NAME_FIELD_EVENT_ID],
-              reasoningTrace: "The same full name was typed into the name field on two fixture applications.",
-            },
-          ],
-        },
-        {
-          section: "job_sources",
-          entries: [
-            {
-              key: "fixture_board",
-              value: "local fixture job site",
-              confidence: 0.8,
-              sourceEventIds: [SEARCH_EVENT_ID],
-              reasoningTrace: "The only search in this session ran against the local fixture job site.",
-            },
-          ],
-        },
-        {
-          section: "preferences",
-          entries: [
-            {
-              key: "cover_letter",
-              value: "reuse the stored paragraph",
-              confidence: 0.75,
-              sourceEventIds: [COVER_LETTER_REASON_EVENT_ID],
-              reasoningTrace: "The stated reason says to reuse one stored cover letter paragraph.",
-            },
-          ],
-        },
-        { section: "criteria", entries: [] },
-        {
-          section: "form_rules",
-          entries: [
-            {
-              key: "email_field",
-              value: "fill with the stored email address",
-              confidence: 0.8,
-              sourceEventIds: [EMAIL_FIELD_EVENT_ID],
-              reasoningTrace: "The email field was filled with one address every time it appeared.",
-            },
-          ],
-        },
-      ],
-    },
+    ...scriptedProfileFixture,
+    resolve: (input) => resolveProfileScript(input, scriptedProfileFixture),
   },
   rules: {
     reasoning: [
@@ -190,12 +214,13 @@ export class DeterministicAgentAdapter implements AgentAdapter {
     }
     yield { type: "status", status: "running" };
 
-    const fixture = this.fixtures[input.resultSchema];
-    if (!fixture) {
+    const configured = this.fixtures[input.resultSchema];
+    if (!configured) {
       yield { type: "error", message: `No scripted fixture for result schema ${input.resultSchema}` };
       yield { type: "status", status: "failed" };
       return;
     }
+    const fixture = { ...configured, ...configured.resolve?.(input) };
 
     for (const text of fixture.reasoning) {
       if (this.isCancelled(input)) {
