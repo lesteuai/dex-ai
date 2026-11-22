@@ -223,6 +223,21 @@ describe("OpenCodeAgentAdapter", () => {
     );
   });
 
+  it("creates sessions on the configured provider/model", async () => {
+    const { host, stream } = createMockHost(SESSION_ID);
+    opencodeSdk.create.mockResolvedValue(host);
+    const adapter = new OpenCodeAgentAdapter({
+      dataDir: tempDataDir(),
+      model: "anthropic/claude-sonnet-5-5",
+    });
+
+    pushSuccessfulTask(stream, SESSION_ID, fencedJson(profileResult));
+    await collectEvents(adapter, startInput("profile_inference"));
+
+    const createInput = host.sessions.create.mock.calls[0]?.[0] as { model?: unknown };
+    expect(createInput.model).toEqual({ providerID: "anthropic", id: "claude-sonnet-5-5" });
+  });
+
   it("drops subscription events from other sessions", async () => {
     const { host, stream } = createMockHost(SESSION_ID);
     opencodeSdk.create.mockResolvedValue(host);
