@@ -351,7 +351,7 @@ test("an authenticated client sees the four panels and the privacy disclosure", 
   const notice = page.locator(".privacy-notice");
   await expect(notice).toContainText("LLM prompts are sent to the provider selected in your OpenCode config");
   await expect(notice).toContainText("persist in the local SQLite database");
-  await expect(notice).toContainText("Voice audio and transcripts never leave this device");
+  await expect(notice).toContainText("Voice audio never leaves this device");
   await expect(notice).toContainText("Dex AI stores no API keys and runs no remote storage service");
 });
 
