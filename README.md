@@ -94,6 +94,7 @@ A typical flow: apply for jobs normally while the extension records, open the Se
 | `dataDir` | `~/.local/share/dex-ai` | SQLite file and models live here |
 | `extensionOrigins` | `[]` | Allowed `chrome-extension://` or `moz-extension://` origins |
 | `agentKind` | `"opencode"` | `"opencode"` for real LLM work, `"deterministic"` for automated runs |
+| `opencodeModel` | unset | `provider/model` from `opencode models`, such as `anthropic/claude-sonnet-5-5`; unset uses the OpenCode default |
 | `lowConfidenceThreshold` | `0.7` | Rehearsal actions below this confidence pause for approval |
 | `parakeetModelPath` | `<dataDir>/models/parakeet-tdt-0.6b-v3-int8` | Local STT model directory |
 
