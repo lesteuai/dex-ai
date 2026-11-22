@@ -13,6 +13,7 @@ import type { AgentAdapter, AgentEvent, AgentStartInput } from "./adapter";
 import { parseAgentResult } from "./results";
 
 type OpenCodeHost = Awaited<ReturnType<typeof OpenCode.create>>;
+type OpenCodeSession = Awaited<ReturnType<OpenCodeHost["sessions"]["create"]>>;
 
 // Server-side subscription filter; server.connected always passes it too.
 const SESSION_EVENT_TYPES = [
@@ -70,6 +71,11 @@ function defaultLogEmit(entry: OpenCode.LogEntry): void {
 
 function errorToMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+/** The host's HTTP/2 session dies after long idle; the first call on it fails. */
+function isDestroyedHttp2Session(error: unknown): boolean {
+  return errorToMessage(error).includes("ERR_HTTP2_INVALID_SESSION");
 }
 
 /** The prompt builders demand bare JSON, but providers often add a fence. */
@@ -135,6 +141,39 @@ export class OpenCodeAgentAdapter implements AgentAdapter {
       });
     }
     return this.hostPromise;
+  }
+
+  /** Drops a host whose transport died; the next ensureHost builds a fresh one. */
+  private async discardHost(): Promise<void> {
+    const host = await this.hostPromise?.catch(() => undefined);
+    this.hostPromise = undefined;
+    try {
+      await host?.close();
+    } catch {
+      // The dead transport fails its own close; nothing is left to clean up.
+    }
+  }
+
+  /**
+   * A destroyed HTTP/2 host session never recovers by itself, so the first
+   * session create on an idle host fails. Discard that host and retry once
+   * on a freshly built one; any other failure propagates.
+   */
+  private async createSession(input: AgentStartInput): Promise<OpenCodeSession> {
+    const args = {
+      location: { directory: this.workspaceDir },
+      title: `Dex AI ${input.kind}`,
+      model: this.model,
+    };
+    try {
+      const host = await this.ensureHost();
+      return await host.sessions.create(args);
+    } catch (error) {
+      if (!isDestroyedHttp2Session(error)) throw error;
+      await this.discardHost();
+      const freshHost = await this.ensureHost();
+      return await freshHost.sessions.create(args);
+    }
   }
 
   private async requestCancellation(taskId: string): Promise<void> {
@@ -254,13 +293,11 @@ export class OpenCodeAgentAdapter implements AgentAdapter {
     input.signal.addEventListener("abort", handleSignalAbort, { once: true });
 
     try {
-      const host = await this.ensureHost();
-      const session = await host.sessions.create({
-        location: { directory: this.workspaceDir },
-        title: `Dex AI ${input.kind}`,
-        model: this.model,
-      });
+      const session = await this.createSession(input);
       active.sessionID = session.id;
+      // After createSession's possible host rebuild, the current host is the
+      // one that created this session.
+      const host = await this.ensureHost();
 
       const events = host.events.subscribe({
         types: SESSION_EVENT_TYPES,

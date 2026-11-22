@@ -468,4 +468,48 @@ describe("OpenCodeAgentAdapter", () => {
     await expect(adapter.close()).resolves.toBeUndefined();
     expect(opencodeSdk.create).not.toHaveBeenCalled();
   });
+
+  it("rebuilds the host and retries once when the http2 session was destroyed", async () => {
+    const dataDir = tempDataDir();
+    const deadHost = createMockHost(SESSION_ID).host;
+    deadHost.sessions.create.mockRejectedValue(
+      new Error("ERR_HTTP2_INVALID_SESSION: The session has been destroyed"),
+    );
+    const { host: liveHost, stream } = createMockHost(SESSION_ID);
+    opencodeSdk.create.mockResolvedValueOnce(deadHost).mockResolvedValueOnce(liveHost);
+    const adapter = new OpenCodeAgentAdapter({ dataDir });
+    const input = startInput("profile_inference");
+
+    pushSuccessfulTask(stream, SESSION_ID, fencedJson(profileResult));
+    const events = await collectEvents(adapter, input);
+
+    expect(events.at(-1)).toEqual({ type: "status", status: "completed" });
+    expect(opencodeSdk.create).toHaveBeenCalledTimes(2);
+    expect(deadHost.close).toHaveBeenCalledTimes(1);
+    expect(liveHost.sessions.create).toHaveBeenCalledWith({
+      location: { directory: join(dataDir, "workspace") },
+      title: "Dex AI profile_inference",
+    });
+    expect(liveHost.sessions.prompt).toHaveBeenCalledWith(
+      { sessionID: SESSION_ID, text: input.prompt },
+      { signal: input.signal },
+    );
+  });
+
+  it("keeps the host when the session create fails for another reason", async () => {
+    const { host } = createMockHost(SESSION_ID);
+    host.sessions.create.mockRejectedValue(new Error("provider is unreachable"));
+    opencodeSdk.create.mockResolvedValueOnce(host);
+    const adapter = new OpenCodeAgentAdapter({ dataDir: tempDataDir() });
+
+    const events = await collectEvents(adapter, startInput("profile_inference"));
+
+    expect(events).toEqual([
+      { type: "status", status: "running" },
+      { type: "error", message: "provider is unreachable" },
+      { type: "status", status: "failed" },
+    ]);
+    expect(opencodeSdk.create).toHaveBeenCalledTimes(1);
+    expect(host.close).toHaveBeenCalledTimes(0);
+  });
 });
