@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { DatabaseSync } from "node:sqlite";
 import { z } from "zod";
 import type {
+  AutonomyAssessment,
   RehearsalActionRecord,
   RehearsalDecisionRequest,
   RehearsalRecord,
@@ -23,6 +24,7 @@ import {
 } from "../repositories/rehearsals";
 import { getSessionSummary } from "../repositories/sessions";
 import type { StreamHub } from "../stream/hub";
+import { loadAutonomyAssessment } from "./autonomy";
 import {
   classifySubmitAttempt,
   planRehearsal,
@@ -51,11 +53,14 @@ export interface RehearsalControllerDeps {
   adapter: AgentAdapter;
   /** Config default; each rehearsal can override it at start. */
   defaultConfidenceThreshold: number;
+  /** Completed rehearsals per platform and role type before auto mode skips pauses. */
+  autonomyRequiredCount: number;
 }
 
 export interface RehearsalView {
   rehearsal: RehearsalRecord;
   actions: RehearsalActionRecord[];
+  autonomy?: AutonomyAssessment;
 }
 
 export interface RehearsalDecisionResult {
@@ -102,7 +107,12 @@ export class RehearsalController {
     const now = new Date();
     const actions = this.buildPlannedActions(rehearsalId, plan, 1, now);
     const firstProposed = actions.find((action) => action.status === "proposed") ?? null;
-    const confidenceThreshold = request.confidenceThreshold ?? this.deps.defaultConfidenceThreshold;
+    const supervisedThreshold = request.confidenceThreshold ?? this.deps.defaultConfidenceThreshold;
+    const autonomy = request.mode === "auto"
+      ? await loadAutonomyAssessment(this.deps.db, session.id, postingUrl, this.deps.autonomyRequiredCount)
+      : undefined;
+    // Familiar work runs with no confidence pauses; submission stays blocked regardless.
+    const confidenceThreshold = autonomy?.autonomous ? 0 : supervisedThreshold;
 
     await runInTransaction(this.deps.database, async () => {
       await insertRehearsal(this.deps.db, {
@@ -132,7 +142,8 @@ export class RehearsalController {
       startedAt: now.toISOString(),
     };
     if (firstProposed) rehearsal = await this.gateCurrentAction(rehearsal, firstProposed);
-    return { rehearsal, actions: await listRehearsalActions(this.deps.db, rehearsalId) };
+    const actionRecords = await listRehearsalActions(this.deps.db, rehearsalId);
+    return autonomy ? { rehearsal, actions: actionRecords, autonomy } : { rehearsal, actions: actionRecords };
   }
 
   async getRehearsal(id: string): Promise<RehearsalView | null> {

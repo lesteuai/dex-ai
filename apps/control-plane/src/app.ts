@@ -10,7 +10,12 @@ import {
   isValidBearerToken,
   matchWebSocketTokenProtocol,
 } from "./auth";
-import { getAllowedHosts, getAllowedOrigins, type ControlPlaneConfig } from "./config";
+import {
+  DEFAULT_AUTONOMY_THRESHOLD,
+  getAllowedHosts,
+  getAllowedOrigins,
+  type ControlPlaneConfig,
+} from "./config";
 import type { ControlPlaneDb } from "./db/client";
 import { createEvaluationsRoute } from "./routes/evaluations";
 import { createEventsRoute } from "./routes/events";
@@ -105,6 +110,7 @@ export function createControlPlaneApp(
       hub,
       adapter,
       confidenceThreshold: config.lowConfidenceThreshold,
+      autonomyRequiredCount: config.autonomyThreshold ?? DEFAULT_AUTONOMY_THRESHOLD,
     }),
   );
   api.route("/evaluations", createEvaluationsRoute({ database, db, adapter }));

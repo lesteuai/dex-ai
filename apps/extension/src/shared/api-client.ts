@@ -1,4 +1,5 @@
 import {
+  type AutonomyAssessment,
   postEventsBatchResponseSchema,
   rehearsalDecisionResponseSchema,
   startRehearsalResponseSchema,
@@ -105,9 +106,9 @@ export async function postEventBatch(
 export async function startRehearsal(
   settings: ControlPlaneSettings,
   request: StartRehearsalRequest,
-): Promise<RehearsalRecord> {
+): Promise<{ rehearsal: RehearsalRecord; autonomy?: AutonomyAssessment }> {
   const body = await authenticatedPost(settings, "/api/rehearsals", request);
-  return startRehearsalResponseSchema.parse(body).rehearsal;
+  return startRehearsalResponseSchema.parse(body);
 }
 
 /** POST /api/rehearsals/:id/decisions with an approve, correct, reject, pause or resume decision. */

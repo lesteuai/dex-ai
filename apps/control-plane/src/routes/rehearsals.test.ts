@@ -8,6 +8,8 @@ import {
 } from "@dex-ai/shared";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { DeterministicAgentAdapter } from "../agent/deterministic-adapter";
+import { insertEvents } from "../repositories/events";
+import { insertRehearsal } from "../repositories/rehearsals";
 import { upsertSession } from "../repositories/sessions";
 import { StreamHub } from "../stream/hub";
 import { makeSessionDescriptor, openTestDatabase, type TestDatabase } from "../test-server";
@@ -17,6 +19,7 @@ const POSTING_URL = "http://127.0.0.1:8787/fixtures/job/posting.html";
 
 interface StartedBody {
   rehearsal: RehearsalRecord;
+  autonomy?: { autonomous: boolean; reason: string };
 }
 interface ViewBody {
   rehearsal: RehearsalRecord;
@@ -47,6 +50,7 @@ function mountRehearsalsRoute(confidenceThreshold = 0.7): Hono {
       hub: new StreamHub(),
       adapter: new DeterministicAgentAdapter(),
       confidenceThreshold,
+      autonomyRequiredCount: 3,
     }),
   );
   return app;
@@ -84,6 +88,40 @@ describe("rehearsals routes", () => {
     // The scripted plan's best confidence is 0.95, so 0.99 pauses it.
     expect(started.rehearsal.status).toBe("paused");
     expect(started.rehearsal.confidenceThreshold).toBe(0.99);
+  });
+
+  it("auto mode skips confidence pauses only on a familiar platform and role type", async () => {
+    const app = mountRehearsalsRoute();
+    await insertEvents(testDb.db, sessionId, [
+      {
+        type: "posting_opened",
+        id: randomUUID(),
+        ts: "2026-11-22T10:00:00.000Z",
+        payload: { pageUrl: POSTING_URL, title: "Senior Frontend Engineer at Acme" },
+      },
+    ]);
+    const autoBody = { sessionId, postingUrl: POSTING_URL, confidenceThreshold: 0.99, mode: "auto" };
+
+    const fresh = await startRehearsal(app, autoBody);
+    expect(fresh.started.autonomy).toMatchObject({ autonomous: false });
+    expect(fresh.started.rehearsal.status).toBe("paused");
+
+    for (let index = 0; index < 3; index += 1) {
+      await insertRehearsal(testDb.db, {
+        id: randomUUID(),
+        sessionId,
+        postingUrl: POSTING_URL,
+        browserKind: "chrome",
+        status: "completed",
+        confidenceThreshold: 0.7,
+        currentActionId: null,
+        startedAt: new Date(),
+      });
+    }
+    const familiar = await startRehearsal(app, autoBody);
+    expect(familiar.started.autonomy).toMatchObject({ autonomous: true });
+    expect(familiar.started.rehearsal.confidenceThreshold).toBe(0);
+    expect(familiar.started.rehearsal.status).toBe("running");
   });
 
   it("rejects an unknown session and an invalid request body", async () => {

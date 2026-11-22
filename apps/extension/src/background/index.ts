@@ -292,12 +292,13 @@ async function handleStartRehearsal(message: Extract<ExtensionMessage, { type: "
   if (!settings.token) return { ok: false, error: "No control plane token is stored" };
   if (!activeSession) return { ok: false, error: "No observed session yet; open a posting first" };
   try {
-    const rehearsal = await startRehearsal(settings, {
+    const { rehearsal, autonomy } = await startRehearsal(settings, {
       sessionId: activeSession.id,
       postingUrl: message.postingUrl ?? activeSession.postingUrl,
+      ...(message.autoMode ? { mode: "auto" as const } : {}),
     });
     activeRehearsalId = rehearsal.id;
-    return { ok: true, rehearsal };
+    return autonomy ? { ok: true, rehearsal, autonomy } : { ok: true, rehearsal };
   } catch (error) {
     return { ok: false, error: errorText(error) };
   }

@@ -43,6 +43,7 @@ function controller(defaultConfidenceThreshold = 0.7): RehearsalController {
     hub,
     adapter: new DeterministicAgentAdapter(),
     defaultConfidenceThreshold,
+    autonomyRequiredCount: 3,
   });
 }
 

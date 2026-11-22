@@ -9,6 +9,7 @@ const DEFAULT_PORT = 8787;
 const DEFAULT_LOW_CONFIDENCE_THRESHOLD = 0.7;
 const PARAKEET_MODEL_DIR_NAME = "parakeet-tdt-0.6b-v3-int8";
 const MIN_TOKEN_LENGTH = 32;
+export const DEFAULT_AUTONOMY_THRESHOLD = 3;
 
 /** "deterministic" exists for automated runs; production runs use OpenCode. */
 export const agentKindSchema = z.enum(["opencode", "deterministic"]);
@@ -26,6 +27,8 @@ export const configSchema = z.object({
   parakeetModelPath: z.string().min(1),
   // Optional so config files written before this field existed still load.
   agentKind: agentKindSchema.optional(),
+  // Completed rehearsals needed on a platform and role type before auto mode skips pauses.
+  autonomyThreshold: z.number().int().min(1).optional(),
 });
 
 export type ControlPlaneConfig = z.infer<typeof configSchema>;

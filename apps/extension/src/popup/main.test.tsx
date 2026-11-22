@@ -351,6 +351,7 @@ describe("rehearsal start", () => {
     expect(polyfill.sentMessages).toContainEqual({
       type: "dex-ai:start-rehearsal",
       postingUrl: "https://jobs.example.test/postings/1",
+      autoMode: false,
     });
     expect(element("rehearsal-status").textContent).toContain("Rehearsal 44444444 is paused");
   });

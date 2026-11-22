@@ -211,3 +211,16 @@ button:disabled {
 .privacy-notice li + li {
   margin-top: 4px;
 }
+
+.rehearsal-start .rehearsal-auto-mode {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--dex-text-muted);
+}
+
+.rehearsal-autonomy {
+  margin: 0;
+  color: var(--dex-text-muted);
+}

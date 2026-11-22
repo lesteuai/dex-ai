@@ -118,3 +118,11 @@ button.secondary {
 .status.error {
   color: #c81e1e;
 }
+
+.checkbox-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 12px;
+}

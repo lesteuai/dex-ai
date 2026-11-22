@@ -182,3 +182,8 @@ export async function deleteProposedRehearsalActions(db: ControlPlaneDb, rehears
     .where(and(eq(rehearsalActions.rehearsalId, rehearsalId), eq(rehearsalActions.status, "proposed")))
     .run();
 }
+
+export async function listCompletedRehearsals(db: ControlPlaneDb): Promise<RehearsalRecord[]> {
+  const rows = await db.select().from(rehearsals).where(eq(rehearsals.status, "completed"));
+  return rows.map(toRehearsalRecord);
+}

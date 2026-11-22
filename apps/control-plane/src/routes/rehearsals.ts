@@ -22,6 +22,7 @@ export interface RehearsalsRouteDeps {
   adapter: AgentAdapter;
   /** Config default; the start request can override it per rehearsal. */
   confidenceThreshold: number;
+  autonomyRequiredCount: number;
 }
 
 // The extension guard reports which submit path it refused, so each reason
@@ -83,6 +84,7 @@ export function createRehearsalsRoute(deps: RehearsalsRouteDeps): Hono<{ Binding
     hub: deps.hub,
     adapter: deps.adapter,
     defaultConfidenceThreshold: deps.confidenceThreshold,
+    autonomyRequiredCount: deps.autonomyRequiredCount,
   });
 
   rehearsals.post("/", async (c) => {
@@ -90,7 +92,11 @@ export function createRehearsalsRoute(deps: RehearsalsRouteDeps): Hono<{ Binding
       const parsed = await parseRequestBody(c, startRehearsalRequestSchema);
       if ("response" in parsed) return parsed.response;
       const started = await controller.startRehearsal(parsed.data);
-      return c.json({ rehearsal: started.rehearsal });
+      return c.json(
+        started.autonomy
+          ? { rehearsal: started.rehearsal, autonomy: started.autonomy }
+          : { rehearsal: started.rehearsal },
+      );
     } catch (error) {
       return rehearsalsErrorResponse(c, error);
     }
