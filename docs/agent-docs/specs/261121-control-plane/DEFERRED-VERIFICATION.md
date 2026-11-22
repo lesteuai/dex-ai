@@ -9,6 +9,8 @@ Everything else passed lint, typecheck, unit tests, build, web E2E, and extensio
 
 ## AC-9 live OpenCode-provider smoke
 
+**PASSED on 21 November 2026.** Result recorded below.
+
 Goal: prove the real `@opencode/sdk` path completes one profile-inference task with a configured provider that has available quota.
 
 Steps:
@@ -40,6 +42,13 @@ curl -sS -X POST http://127.0.0.1:8787/api/profile/inference \
 ```
 
 Record the result here once it passes.
+
+Result (21 November 2026, provider `opencode-go/deepseek-v4.1-flash`, live config `agentKind: "opencode"`):
+
+- The first live attempts exposed a prompt gap: `buildProfileInferencePrompt` never showed the top-level `{ "sections": [...] }` wrapper, so the model answered with bare section objects and five separate JSON objects; the Zod gate rejected each answer and recorded failed tasks with the provider error, exactly as designed. Fix: `apps/control-plane/src/agent/prompts.ts` now spells out the full five-section skeleton.
+- After the fix, `POST /api/profile/inference` on session `faa9ae9f-17bc-4f71-ad80-a16bbbfba49e` (one `posting_opened` event on `ycombinator.com/launches`) answered `200` and stored 5 cited entries: `user_facts.browses_yc_launch_pages` (0.4), `job_sources.y_combinator_launches` (0.55), `preferences.interest_in_ai_agent_startups` (0.35), `preferences.interest_in_yc_backed_companies` (0.3), `criteria.company_type` (0.3).
+- Every entry cites the source event, a reasoning trace is linked to the session, and 5 revisions with actor `agent` record the change.
+- A second run on session `88e9e0bd-a929-411a-a28d-06b3ab6675f1` (only local UI selector toggles) correctly stored 0 entries rather than inventing any.
 
 ## AC-10 and AC-12 public posting smoke
 

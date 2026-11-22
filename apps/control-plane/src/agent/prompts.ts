@@ -37,9 +37,11 @@ export function buildProfileInferencePrompt(input: ProfileInferencePromptInput):
     "- If a section has no sufficiently supported entry, return that section with an empty entries array. Never invent facts to fill it.",
     "- A value may be any JSON value. Keep it small and factual.",
     "",
-    `Return JSON with one section object for each of these names, in this order: ${PROFILE_SECTIONS.join(", ")}.`,
+    `Section names in order, one section object each inside the single sections array: ${PROFILE_SECTIONS.join(", ")}.`,
     "",
-    'Section shape: { "section": "<name>", "entries": [{ "key": string, "value": <any JSON>, "confidence": 0..1, "sourceEventIds": [event ids], "reasoningTrace": string }] }',
+    'Return JSON: { "sections": [{ "section": "user_facts", "entries": [...] }, { "section": "job_sources", "entries": [...] }, { "section": "preferences", "entries": [...] }, { "section": "criteria", "entries": [...] }, { "section": "form_rules", "entries": [...] }] }',
+    "",
+    'Entry shape: { "key": string, "value": <any JSON>, "confidence": 0..1, "sourceEventIds": [event ids], "reasoningTrace": string }',
     "",
     JSON_ONLY_INSTRUCTION,
   ].join("\n");

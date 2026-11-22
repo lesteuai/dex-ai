@@ -65,6 +65,8 @@ describe("buildProfileInferencePrompt", () => {
 
   it("lists every profile section in order and demands JSON only", () => {
     expect(prompt).toContain(PROFILE_SECTIONS.join(", "));
+    expect(prompt).toContain('Return JSON: { "sections": [');
+    expect(prompt).toContain('{ "section": "user_facts", "entries": [...] }');
     expect(prompt).toContain("Never invent facts to fill it.");
     expect(prompt).toContain(JSON_ONLY_INSTRUCTION);
   });

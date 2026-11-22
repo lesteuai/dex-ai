@@ -21,7 +21,7 @@ The config field `agentKind` selects the agent adapter (`apps/control-plane/src/
 - `"opencode"` (default): real `@opencode/sdk` 2.3.2 work through the user's configured OpenCode provider. Automated tests never use this.
 - `"deterministic"`: scripted adapter for automated runs and E2E suites. On a live session (no fixture event ids) profile inference derives a rule-based profile from the session's own events (`apps/control-plane/src/agent/deterministic-profile.ts`), so the UI shows cited entries without a provider.
 
-The optional field `opencodeModel` (`provider/model`, as `opencode models` prints it) picks the model for every agent session; unset uses the OpenCode default. OpenCode's free `opencode/*-free` models answer `Free usage limit reached` through the SDK on the first call (verified 22 November 2026; the error says free models work only in the OpenCode app), so live runs need a connected provider such as Claude, ChatGPT, or OpenCode Go.
+The optional field `opencodeModel` (`provider/model`, as `opencode models` prints it) picks the model for every agent session; unset uses the OpenCode default. OpenCode's free models (the `opencode/*-free` names plus the price-0 default `opencode/big-pickle`) answer `Free usage limit reached` through the SDK once the free window is spent (verified 22 November 2026; the error says free models work only in the OpenCode app), so uninterrupted live runs need a Go-tier model under the `opencode-go` credential or another connected provider such as Claude or ChatGPT.
 
 For a throwaway environment, set `DEX_AI_HOME` before starting: `DEX_AI_HOME=/tmp/opencode/smoke bun run --filter '@dex-ai/control-plane' dev`.
 
@@ -91,9 +91,9 @@ The E2E suites use throwaway configs under `/tmp/opencode` and the deterministic
 
 ## Deferred verification
 
-Two checks are deferred by user decision and recorded in [specs/261121-control-plane/DEFERRED-VERIFICATION.md](specs/261121-control-plane/DEFERRED-VERIFICATION.md):
+Two checks were deferred by user decision and are recorded in [specs/261121-control-plane/DEFERRED-VERIFICATION.md](specs/261121-control-plane/DEFERRED-VERIFICATION.md):
 
-- AC-9: live OpenCode-provider smoke for one profile-inference task.
-- AC-10 and AC-12: public posting smoke that proves capture and the pre-submission stop on a real posting.
+- AC-9: live OpenCode-provider smoke for one profile-inference task. PASSED 21 November 2026; see the result recorded in that file.
+- AC-10 and AC-12: public posting smoke that proves capture and the pre-submission stop on a real posting. Still deferred.
 
 Follow the steps in that file, then record the results there.
