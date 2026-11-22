@@ -9,6 +9,8 @@ import {
   getBrowserKind,
   type BlockedAttempt,
   type BlockedAttemptReportMessage,
+  type PostingText,
+  READ_POSTING_MESSAGE_TYPE,
   type TabMessage,
 } from "../shared/messages";
 import { startObservation, type ObservedPayload } from "./observer";
@@ -176,6 +178,19 @@ browser.runtime.onMessage.addListener((rawMessage: unknown) => {
       error: error instanceof Error ? error.message : String(error),
     }),
   );
+});
+
+// Matches the jobMatchRequestSchema text limit.
+const MAX_POSTING_TEXT_LENGTH = 50_000;
+
+function readPostingText(): PostingText {
+  return { title: document.title, text: document.body.innerText.slice(0, MAX_POSTING_TEXT_LENGTH) };
+}
+
+browser.runtime.onMessage.addListener((rawMessage: unknown) => {
+  const record = typeof rawMessage === "object" && rawMessage !== null ? (rawMessage as Record<string, unknown>) : {};
+  if (record.type !== READ_POSTING_MESSAGE_TYPE) return undefined;
+  return Promise.resolve(readPostingText());
 });
 
 function startContentScript(): void {

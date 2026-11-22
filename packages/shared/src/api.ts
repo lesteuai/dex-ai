@@ -285,3 +285,26 @@ export type StartRehearsalRequest = z.infer<typeof startRehearsalRequestSchema>;
 export type RehearsalRecord = z.infer<typeof rehearsalRecordSchema>;
 export type RehearsalDecisionRequest = z.infer<typeof rehearsalDecisionRequestSchema>;
 export type EvaluationRecord = z.infer<typeof evaluationRecordSchema>;
+
+// Job match: score a posting against the learned profile.
+
+export const jobMatchRequestSchema = z.strictObject({
+  title: z.string().max(500).optional(),
+  text: z.string().min(1).max(50_000),
+});
+
+const jobMatchSignalSchema = z.strictObject({
+  section: z.string(),
+  key: z.string(),
+  terms: z.array(z.string()),
+});
+
+export const jobMatchResponseSchema = z.strictObject({
+  // null when the profile has no preferences, criteria or job sources yet.
+  score: z.number().int().min(0).max(100).nullable(),
+  matched: z.array(jobMatchSignalSchema),
+  missed: z.array(jobMatchSignalSchema),
+});
+
+export type JobMatchRequest = z.infer<typeof jobMatchRequestSchema>;
+export type JobMatchResponse = z.infer<typeof jobMatchResponseSchema>;
