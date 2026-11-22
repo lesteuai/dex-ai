@@ -65,4 +65,4 @@ Build the localhost control plane as Dex AI's server and user interface, backed 
 
 - The default numeric low-confidence threshold remains a configuration decision for planning; it does not block the criteria because tests can set an explicit threshold.
 - The exact local speech runtime and Parakeet model variant remain implementation decisions; the observable requirement is on-device transcription.
-- The exact public posting for the live smoke test will be selected by the user during verification; deterministic acceptance uses the local fixture.
+- The exact public posting for the live smoke test will be selected by the user during verification; deterministic acceptance uses the local fixture. AC-9 and the public posting smoke are deferred in [DEFERRED-VERIFICATION.md](DEFERRED-VERIFICATION.md).
